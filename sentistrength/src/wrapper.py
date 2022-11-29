@@ -70,6 +70,6 @@ class SentistrengthWrapper():
 
     def __build_sentiment(self, text: str, result: str) -> Sentiment:
         """Factory method for building sentiment objects."""
-        # TODO: account for other analysis methods: trinary vs. binary vs. scale.
-        (pos, neg, pol) = [int(e) for e in result.strip().split(" ")]
-        return Sentiment(text, pos, neg, pol)
+        (positivity, negativity, classification) = [
+            int(e) for e in result.strip().split(" ")]
+        return Sentiment(text, positivity, negativity, classification)
