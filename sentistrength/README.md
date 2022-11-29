@@ -7,7 +7,7 @@ Implements a wrapper and an adapter for the Sentistrength JAR file.
 _Note: the JAR file and the corresponding datafiles are not provided with this adapter as they are subject to licenses / distribution restrictions. For any details on how to acquire the JAR, see [this link](http://sentistrength.wlv.ac.uk/)._
 
 To use this tool, some version of java must be installed.
-Java 17 was used during the implementation.
+Java 11 was used during the implementation.
 
 ## User Guide
 
