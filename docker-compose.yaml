@@ -1,0 +1,12 @@
+services:
+
+  api:
+    build: ./test_rest_api
+    ports:
+      - "5000:5000"
+
+  api-adapter:
+    build: ./api_adapter
+    depends_on: 
+      - api
+    network_mode: "host"
