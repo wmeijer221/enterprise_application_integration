@@ -24,6 +24,7 @@ class Config():
 
   def getOntology(self):
     ontology = {endpoint['uri']:endpoint['ontology'] for endpoint in self.__config['endpoints']}
+    print("Ontolgy:", ontology)
     return ontology
 
 

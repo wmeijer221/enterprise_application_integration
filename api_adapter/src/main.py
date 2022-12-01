@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from time import sleep
 from config import Config
 from scraper import RestApiScraper
 from translator import OntologyTranslator
