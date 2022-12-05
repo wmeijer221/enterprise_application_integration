@@ -13,6 +13,8 @@ class Config():
     with open(cfg_path, 'r') as cfg_file:
       self.__config = yaml.safe_load(cfg_file)
 
+    print(f'Starting with configuration:\n{json.dumps(self.__config, indent=4)}')
+
 
   def getTarget(self):
     return self.__config['target']
