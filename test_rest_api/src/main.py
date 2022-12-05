@@ -15,6 +15,14 @@ class GetTest(Resource):
             })
         return ofTheJedi
 
+class GetTest2(Resource):
+    def get (self):
+        ofTheKing = jsonify({
+            "message": "Another hello!",
+            "test": "test-value2"
+        })
+        return ofTheKing
+
 class GetAPIStatus(Resource):
 
     def get(self):
@@ -29,6 +37,7 @@ if __name__ == '__main__':
 
     api.add_resource(GetAPIStatus, '/')
     api.add_resource(GetTest, '/test')
+    api.add_resource(GetTest2, '/test2')
 
 
     cors = CORS(app)

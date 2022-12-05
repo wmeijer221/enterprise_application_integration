@@ -1,0 +1,12 @@
+target: "http://localhost:5000"
+endpoints:
+  - uri: "/test"
+    method: "GET"
+    ontology:
+      canonical-test: test
+      body: message
+  - uri: "/test2"
+    method: "GET"
+    ontology:
+      canonical-test: test
+      body: message

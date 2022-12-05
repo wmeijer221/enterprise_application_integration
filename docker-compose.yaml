@@ -6,7 +6,10 @@ services:
       - "5000:5000"
 
   api-adapter:
-    build: ./api_adapter
+    build: ./test_rest_api_adapter
     depends_on: 
       - api
     network_mode: "host"
+
+  # senti-adapter:
+  #   build: ./sentistrength
