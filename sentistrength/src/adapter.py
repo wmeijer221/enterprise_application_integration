@@ -19,7 +19,7 @@ class SentistrengthAdapter():
             print(sentiment)
 
     documents = ['I love this', 'I hate this',
-                 'this is fucking awesome', 'what the hell man',
+                 'this is awesome', 'what the hell man',
                  'just some stuff', 'yeah right you know what you are doing']
     index = 0
 
