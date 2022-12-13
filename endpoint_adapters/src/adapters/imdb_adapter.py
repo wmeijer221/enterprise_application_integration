@@ -16,6 +16,7 @@ class IMDbAdapter(AbstractAdapter):
 
     def __init__(self, publish: callable):
         super().__init__(publish)
+        # TODO: Remove this line and implement proper generic behaviour for the list of titles.
         self.set_list_of_titles(["Breaking Bad"])
 
     def set_list_of_titles(self, list_of_titles: list[str]):
