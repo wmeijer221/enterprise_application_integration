@@ -9,7 +9,7 @@ class main():
 
     def publish(self, message):
         # TODO: publish message to channel.
-        pass
+        print(f'Sending message: {message}')
 
 
 if __name__ == "__main__":
