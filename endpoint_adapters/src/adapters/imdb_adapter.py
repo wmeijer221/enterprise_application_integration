@@ -55,9 +55,6 @@ class IMDbAdapter(AbstractAdapter):
             return None
 
         response_json = json.loads(response.text)
-        if len(response_json) == 0:
-            logging.error('No IMDb ID found for %s.', title)
-            return None
 
         entries = [{"title": release['title'], "id": release['id']}
                    for release in response_json['results']]
