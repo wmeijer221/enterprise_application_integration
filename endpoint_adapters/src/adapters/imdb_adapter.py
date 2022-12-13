@@ -42,8 +42,13 @@ class IMDbAdapter(AbstractAdapter):
         logging.info('Fetching IMDb ID for %s.', title)
         url = f"{self.BASE_URL}/search"
         params = {"query": title}
-        response = requests.request("GET", url, params=params,
-                                    timeout=self.TIMEOUT)
+
+        try:
+            response = requests.request("GET", url, params=params,
+                                        timeout=self.TIMEOUT)
+        except requests.exceptions.Timeout:
+            logging.error('Timeout while fetching IMDb ID for %s.', title)
+            return None
 
         if not is_success_code(response.status_code):
             logging.error('Failed to fetch IMDb ID for %s.', title)
@@ -74,8 +79,13 @@ class IMDbAdapter(AbstractAdapter):
             'option': 'helpfulness',
             'sortOrder': 'descending'
         }
-        response = requests.request(
-            "GET", url, params=params, timeout=self.TIMEOUT)
+
+        try:
+            response = requests.request(
+                "GET", url, params=params, timeout=self.TIMEOUT)
+        except requests.exceptions.Timeout:
+            logging.error('Timeout while fetching reviews for %s.', release_id)
+            return None
 
         if not is_success_code(response.status_code):
             logging.error('Failed to fetch reviews for %s.', release_id)
