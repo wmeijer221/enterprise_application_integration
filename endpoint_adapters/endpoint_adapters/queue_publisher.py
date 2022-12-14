@@ -23,8 +23,7 @@ class QueuePublisher:
         )
         self.channel = self.connection.channel()
         queue_name = getenv(QUEUE_NAME_KEY)
-        logging.info(queue_name)
-        self.channel.queue_declare(queue_name)
+        self.channel.queue_declare(queue=queue_name)
         self.exchange = getenv(EXCHANGE_NAME_KEY, default="")
         self.routing_key = getenv(ROUTING_KEY_KEY, default="")
         logging.info(

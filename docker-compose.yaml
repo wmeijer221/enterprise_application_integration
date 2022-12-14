@@ -1,5 +1,4 @@
 services:
-
   messaging:
     image: rabbitmq:3.11-management
     ports:
@@ -17,4 +16,10 @@ services:
     build: endpoint_adapters
     depends_on:
       - messaging
-      
+    environment:
+      - ENDPOINT_TYPE=test
+      - CHANNEL_NAME=messaging
+      - QUEUE_NAME=new_review
+      - REDDIT_CLIENT_ID="MLXvclyGkxlQBdNm9iI8Ow"
+      - REDDIT_CLIENT_SECRET="c0HlmtPDWtSDF2f2MJuwQG9eOh-5ww"
+      - REDDIT_USER_AGENT="eai:reddit_adapter:0.1 (by /u/willem88836)"

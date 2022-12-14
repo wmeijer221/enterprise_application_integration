@@ -10,4 +10,4 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 COPY . .
 
-CMD ["python", "-m" "endpoint_adapters"]
+CMD ["python3", "-m", "endpoint_adapters"]
