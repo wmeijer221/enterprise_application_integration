@@ -1,0 +1,15 @@
+{
+	"name": "Existing Docker Compose (Extend)",
+	"dockerComposeFile": [
+		"../docker-compose.yaml"
+	],
+	"service": "rabbit_test",
+	"workspaceFolder": "/app/rabbit",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python"
+			]
+		}
+	}
+}
