@@ -7,7 +7,7 @@ from praw.reddit import Reddit
 from praw.models import SubredditMessage
 from prawcore.exceptions import ResponseException
 
-from adapters.base_adapter import AbstractAdapter
+from endpoint_adapters.adapters.base_adapter import AbstractAdapter
 
 
 MAX_SUBREDDITS = 10

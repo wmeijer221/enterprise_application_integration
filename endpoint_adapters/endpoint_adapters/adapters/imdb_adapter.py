@@ -4,8 +4,8 @@ import json
 import logging
 import requests
 
-from adapters.base_adapter import AbstractAdapter
-from utils.http_status_code_helper import is_success_code
+from endpoint_adapters.adapters.base_adapter import AbstractAdapter
+from endpoint_adapters.utils.http_status_code_helper import is_success_code
 
 
 class IMDbAdapter(AbstractAdapter):
