@@ -22,12 +22,11 @@ class QueuePublisher:
             pika.ConnectionParameters(host=channel_name)
         )
         self.channel = self.connection.channel()
-        queue_name = getenv(QUEUE_NAME_KEY)
-        self.channel.queue_declare(queue=queue_name)
+        self.queue_name = getenv(QUEUE_NAME_KEY)
+        self.channel.queue_declare(queue=self.queue_name)
         self.exchange = getenv(EXCHANGE_NAME_KEY, default="")
-        self.routing_key = getenv(ROUTING_KEY_KEY, default="")
         logging.info(
-            f"Initialized queue publisher with: {channel_name=}, {queue_name=}, routing_key={self.routing_key}, exchange={self.exchange}"
+            f"Initialized queue publisher with: {channel_name=}, queue_name={self.queue_name}, exchange={self.exchange}"
         )
 
     def publish(self, message: ChannelMessage):
@@ -36,6 +35,6 @@ class QueuePublisher:
         json_message = to_json(message)
         self.channel.basic_publish(
             exchange=self.exchange,
-            routing_key=self.routing_key,
+            routing_key=self.queue_name,
             body=json_message,
         )
