@@ -1,7 +1,7 @@
 """Implements base class for the concrete adapter implementations."""
 
 
-class AbstractAdapter():
+class AbstractAdapter:
     """Base class for concrete adapter implementations."""
 
     def __init__(self, publish: callable):

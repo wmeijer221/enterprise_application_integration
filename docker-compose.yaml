@@ -12,3 +12,11 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       - ./:/app:cached
+
+  endpoint_adapters:
+    build: endpoint_adapters
+    depends_on:
+      - messaging
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ./:/app:cached
