@@ -1,11 +1,10 @@
 """Root file for the endpoint adapter module"""
-# type: ignore
 
 import logging
 from dotenv import load_dotenv
 
-from endpoint_adapters.endpoint_adapter_composition import EndpointAdapterComposition
+from endpoint_adapters.endpoint_adapter import EndpointAdapter
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
-EndpointAdapterComposition()
+EndpointAdapter()
