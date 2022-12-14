@@ -2,7 +2,7 @@ from os import getenv
 import logging
 
 from endpoint_adapters.title_broker import TitleBroker
-from endpoint_adapters.channel_publisher import ChannelPublisher
+from endpoint_adapters.queue_publisher import QueuePublisher
 from endpoint_adapters.adapters import APIAdapter
 from endpoint_adapters.model.channel_message import ChannelMessage
 from endpoint_adapters.model.review import Review
@@ -16,7 +16,7 @@ REVIEW_MESSAGE_TYPE = "review"
 
 class EndpointAdapter:
     def __init__(self):
-        self.channel_publisher = ChannelPublisher()
+        self.channel_publisher = QueuePublisher()
         self.adapter, self.adapter_type = self.__build_api_adapter()
         self.title_publisher = TitleBroker(self.adapter)
         self.title_publisher.start()
