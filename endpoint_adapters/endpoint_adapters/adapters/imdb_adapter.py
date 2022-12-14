@@ -4,31 +4,22 @@ import json
 import logging
 import requests
 
-from endpoint_adapters.adapters.base_adapter import AbstractAdapter
+from endpoint_adapters.adapters import APIAdapter
 from endpoint_adapters.utils.http_status_code_helper import is_success_code
 
 
-class IMDbAdapter(AbstractAdapter):
+class IMDbAdapter(APIAdapter):
     """Adapter for IMDb reviews."""
 
     BASE_URL = "https://imdb-api.tprojects.workers.dev"
     TIMEOUT = 5
 
-    def __init__(self, publish: callable):
-        super().__init__(publish)
-        # TODO: Remove this line and implement proper generic behaviour for the list of titles.
-        self.set_list_of_titles(["Breaking Bad"])
-
-    def set_list_of_titles(self, list_of_titles: "list[str]"):
-        """Setter for list of titles."""
-        self.list_of_titles = list_of_titles
-
     def fetch(self):
-        release_ids = self.__fetch_release_ids(self.list_of_titles)
+        release_ids = self.__fetch_release_ids(self._list_of_titles)
         logging.info(
             "Found %s IMDb IDs for %s titles.",
             len(release_ids),
-            len(self.list_of_titles),
+            len(self._list_of_titles),
         )
         for release_id in release_ids:
             reviews = self.__fetch_reviews(release_id)

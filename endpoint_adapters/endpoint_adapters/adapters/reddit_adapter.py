@@ -7,7 +7,7 @@ from praw.reddit import Reddit
 from praw.models import SubredditMessage
 from prawcore.exceptions import ResponseException
 
-from endpoint_adapters.adapters.base_adapter import AbstractAdapter
+from endpoint_adapters.adapters import APIAdapter
 
 
 MAX_SUBREDDITS = 10
@@ -17,10 +17,8 @@ MAX_POSTS = 100
 SEARCH_QUERY = "movie"
 
 
-class RedditAdapter(AbstractAdapter):
+class RedditAdapter(APIAdapter):
     """Adapter for Reddit."""
-
-    _list_of_titles: "list[str]"
 
     def __init__(self, publish: callable):
         super().__init__(publish)
@@ -50,10 +48,6 @@ class RedditAdapter(AbstractAdapter):
             )
             if subreddit.subreddit_type == "public"
         ]
-
-    def set_list_of_titles(self, list_of_titles: "list[str]"):
-        """Setter for list of titles."""
-        self._list_of_titles = list_of_titles
 
     def fetch(self):
         for title in self._list_of_titles:

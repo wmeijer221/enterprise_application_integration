@@ -4,8 +4,8 @@
 import logging
 from dotenv import load_dotenv
 
-from endpoint_adapters.api_adapter import APIAdapter
+from endpoint_adapters.endpoint_adapter_composition import EndpointAdapterComposition
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
-APIAdapter()
+EndpointAdapterComposition()
