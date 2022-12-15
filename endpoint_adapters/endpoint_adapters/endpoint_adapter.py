@@ -27,7 +27,6 @@ class EndpointAdapter:
         message = ChannelMessage(
             review,
             message_type=REVIEW_MESSAGE_TYPE,
-            adapter_type=self.adapter_type,
             adapter_version=VERSION,
         )
         self.channel_publisher.publish(message)

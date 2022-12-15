@@ -1,10 +1,12 @@
 """Adapter for IMDb reviews."""
 
+from dateutil.parser import parse as parse_date
 import json
 import logging
 import requests
 
 from endpoint_adapters.adapters import APIAdapter
+from endpoint_adapters.model.review import Review
 from endpoint_adapters.utils.http_status_code_helper import is_success_code
 
 
@@ -21,11 +23,11 @@ class IMDbAdapter(APIAdapter):
             len(release_ids),
             len(self._list_of_titles),
         )
-        for release_id in release_ids:
+        for title, release_id in zip(self._list_of_titles, release_ids):
             reviews = self.__fetch_reviews(release_id)
             if reviews is None:
                 continue
-            self.__publish_reviews(reviews)
+            self.__publish_reviews(title, reviews)
 
     def __fetch_release_ids(self, titles: "list[str]") -> "list[str]":
         """Fetches the IMDb IDs for a list of titles."""
@@ -64,7 +66,7 @@ class IMDbAdapter(APIAdapter):
         logging.error("No IMDb ID found for %s.", title)
         return None
 
-    def __fetch_reviews(self, release_id: str) -> "list[str]":
+    def __fetch_reviews(self, release_id: str) -> "list[dict]":
         """Fetches the reviews for a given title."""
         logging.info("Fetching reviews for %s.", release_id)
         url = f"{self.BASE_URL}/reviews/{release_id}"
@@ -85,16 +87,21 @@ class IMDbAdapter(APIAdapter):
             logging.error("No reviews found for %s.", release_id)
             return None
 
-        reviews = [
-            {"text_message": review["content"], "heading": review["heading"]}
-            for review in response_json["reviews"]
-        ]
-        logging.info("Found reviews for %s: %s.", release_id, reviews)
+        reviews = list([review for review in response_json["reviews"]])
+        logging.info("Found %s reviews for %s", len(reviews), release_id)
         return reviews
 
-    def __publish_reviews(self, reviews: "list[str]"):
+    def __publish_reviews(self, title: str, reviews: "list[dict]"):
         """Publishes the reviews to the message queue."""
         logging.info("Publishing %s reviews to message queue.", len(reviews))
         for review in reviews:
-            # TODO: add logic for e.g. weighting reviews here.
-            self.publish(review["text_message"])
+            timestamp = parse_date(review["date"])
+            real_review = Review(
+                title=title,
+                message_text=review["content"],
+                source_name="imdb",
+                source_id=review["id"],
+                timestamp=timestamp,
+                reviewer="author",
+            )
+            self.publish(real_review)

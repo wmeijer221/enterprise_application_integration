@@ -2,13 +2,14 @@
 
 import logging
 from os import getenv
+import datetime
 
 from praw.reddit import Reddit
 from praw.models import SubredditMessage
 from prawcore.exceptions import ResponseException
 
 from endpoint_adapters.adapters import APIAdapter
-
+from endpoint_adapters.model.review import Review
 
 MAX_SUBREDDITS = 10
 MAX_POSTS = 100
@@ -62,22 +63,31 @@ class RedditAdapter(APIAdapter):
                 )
                 continue
             logging.info('Found %s posts for "%s" in subreddits.', len(posts), title)
-            self.__publish_posts(posts)
+            self.__publish_posts(title, posts)
 
-    def __find_posts(self, title: str) -> "list[str]":
+    def __find_posts(self, title: str) -> "list[SubredditMessage]":
         subreddits = "+".join(self.relevant_subreddits)
         results = self.reddit.subreddit(subreddits).search(
             query=title, sort="relevance", limit=MAX_POSTS
         )
         # TODO: if we want to track more details, we should add that here.
         # TODO: if we want to track comments as well, we should add that here.
-        results = [submission.selftext.strip() for submission in results]
-        posts = [submission for submission in results if submission != ""]
+        posts = [
+            submission for submission in results if submission.selftext.strip() != ""
+        ]
         return posts
 
-    def __publish_posts(self, posts: "list[SubredditMessage]"):
+    def __publish_posts(self, title: str, posts: "list[SubredditMessage]"):
         """Publishes the reviews to the message queue."""
         logging.info("Publishing %s posts to message queue.", len(posts))
         for post in posts:
-            # TODO: add logic for e.g. weighting reviews here.
-            self.publish(post)
+            timestamp = datetime.datetime.fromtimestamp(post.created_utc)
+            review = Review(
+                title=title,
+                message_text=post.selftext,
+                source_name="reddit",
+                source_id=post.id,
+                timestamp=timestamp,
+                reviewer=post.author,
+            )
+            self.publish(review)
