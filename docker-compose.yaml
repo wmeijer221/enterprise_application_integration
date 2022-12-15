@@ -4,15 +4,35 @@ services:
     ports:
       - 8081:15672
 
-  endpoint_adapters:
+  # test_endpoint_adapter:
+  #   build: endpoint_adapters
+  #   depends_on:
+  #     - messaging
+  #   environment:
+  #     - ENDPOINT_TYPE=test
+  #     - CHANNEL_NAME=messaging
+  #     - QUEUE_NAME=new_review
+  #     - UPDATE_INTERVAL=3600
+
+  reddit_endpoint_adapter:
     build: endpoint_adapters
     depends_on:
       - messaging
     environment:
-      - ENDPOINT_TYPE=test
+      - ENDPOINT_TYPE=reddit
       - CHANNEL_NAME=messaging
       - QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=5
-      - REDDIT_CLIENT_ID="MLXvclyGkxlQBdNm9iI8Ow"
-      - REDDIT_CLIENT_SECRET="c0HlmtPDWtSDF2f2MJuwQG9eOh-5ww"
-      - REDDIT_USER_AGENT="eai:reddit_adapter:0.1 (by /u/willem88836)"
+      - UPDATE_INTERVAL=3600
+      - REDDIT_CLIENT_ID=
+      - REDDIT_CLIENT_SECRET=
+      - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
+
+  imdb_endpoint_adapter:
+    build: endpoint_adapters
+    depends_on:
+      - messaging
+    environment:
+      - ENDPOINT_TYPE=imdb
+      - CHANNEL_NAME=messaging
+      - QUEUE_NAME=new_review
+      - UPDATE_INTERVAL=120

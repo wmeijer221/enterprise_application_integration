@@ -86,8 +86,8 @@ class RedditAdapter(APIAdapter):
                 title=title,
                 message_text=post.selftext,
                 source_name="reddit",
-                source_id=post.id,
+                source_id=f'{str(post.subreddit)}/{str(post.id)}',
                 timestamp=timestamp,
-                reviewer=post.author,
+                reviewer=str(post.author),
             )
             self.publish(review)
