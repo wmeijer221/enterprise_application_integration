@@ -1,14 +1,39 @@
 services:
-
   messaging:
     image: rabbitmq:3.11-management
     ports:
       - 8081:15672
 
-  rabbit_test:
-    build: rabbit
+  # test_endpoint_adapter:
+  #   build: endpoint_adapters
+  #   depends_on:
+  #     - messaging
+  #   environment:
+  #     - ENDPOINT_TYPE=test
+  #     - CHANNEL_NAME=messaging
+  #     - QUEUE_NAME=new_review
+  #     - UPDATE_INTERVAL=10
+
+  reddit_endpoint_adapter:
+    build: endpoint_adapters
     depends_on:
       - messaging
-    command: /bin/sh -c "while sleep 1000; do :; done"
-    volumes:
-      - ./:/app:cached
+    environment:
+      - ENDPOINT_TYPE=reddit
+      - CHANNEL_NAME=messaging
+      - QUEUE_NAME=new_review
+      - UPDATE_INTERVAL=3600
+      # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
+      - REDDIT_CLIENT_ID=
+      - REDDIT_CLIENT_SECRET=
+      - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
+
+  imdb_endpoint_adapter:
+    build: endpoint_adapters
+    depends_on:
+      - messaging
+    environment:
+      - ENDPOINT_TYPE=imdb
+      - CHANNEL_NAME=messaging
+      - QUEUE_NAME=new_review
+      - UPDATE_INTERVAL=120

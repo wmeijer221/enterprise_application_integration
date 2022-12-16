@@ -3,8 +3,8 @@
 	"dockerComposeFile": [
 		"../docker-compose.yaml"
 	],
-	"service": "rabbit_test",
-	"workspaceFolder": "/app/rabbit",
+	"service": "endpoint_adapters",
+	"workspaceFolder": "/app/endpoint_adapters",
 	"customizations": {
 		"vscode": {
 			"extensions": [
