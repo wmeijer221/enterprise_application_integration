@@ -25,5 +25,5 @@ class TitleBroker:
         while self.running:
             self.receiver.set_list_of_titles(titles)
             self.receiver.fetch()
-            logging.info("Title broker going to sleep for %s seconds...", update_interval)
+            logging.debug("Title broker going to sleep for %s seconds...", update_interval)
             time.sleep(update_interval)

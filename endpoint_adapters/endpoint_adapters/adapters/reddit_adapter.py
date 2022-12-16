@@ -24,9 +24,9 @@ class RedditAdapter(APIAdapter):
     def __init__(self, publish: callable):
         super().__init__(publish)
         self.reddit = self.__build_reddit_instance()
-        logging.info("Initialized Reddit instance.")
+        logging.debug("Initialized Reddit instance.")
         self.relevant_subreddits = self.__fetch_relevant_subreddits()
-        logging.info(
+        logging.debug(
             "Found %s relevant subreddits: [%s]",
             len(self.relevant_subreddits),
             ", ".join(self.relevant_subreddits),
@@ -53,7 +53,7 @@ class RedditAdapter(APIAdapter):
 
     def fetch(self):
         for title in self._list_of_titles:
-            logging.info('Searching for "%s" in subreddits.', title)
+            logging.debug('Searching for "%s" in subreddits.', title)
             try:
                 posts = self.__find_posts(title)
             except ResponseException as exception:
@@ -63,7 +63,7 @@ class RedditAdapter(APIAdapter):
                     exception.response,
                 )
                 continue
-            logging.info('Found %s posts for "%s" in subreddits.', len(posts), title)
+            logging.debug('Found %s posts for "%s" in subreddits.', len(posts), title)
             self.__publish_posts(title, posts)
 
     def __find_posts(self, title: str) -> "list[SubredditMessage]":
@@ -80,7 +80,7 @@ class RedditAdapter(APIAdapter):
 
     def __publish_posts(self, title: str, posts: "list[SubredditMessage]"):
         """Publishes the reviews to the message queue."""
-        logging.info("Publishing %s posts to message queue.", len(posts))
+        logging.debug("Publishing %s posts to message queue.", len(posts))
         for post in posts:
             timestamp = datetime.datetime.fromtimestamp(post.created_utc)
             review = Review(

@@ -18,7 +18,7 @@ class IMDbAdapter(APIAdapter):
 
     def fetch(self):
         release_ids = self.__fetch_release_ids(self._list_of_titles)
-        logging.info(
+        logging.debug(
             "Found %s IMDb IDs for %s titles.",
             len(release_ids),
             len(self._list_of_titles),
@@ -36,7 +36,7 @@ class IMDbAdapter(APIAdapter):
 
     def __fetch_release_id(self, title) -> str:
         """Fetches the IMDb ID for a given title."""
-        logging.info("Fetching IMDb ID for %s.", title)
+        logging.debug("Fetching IMDb ID for %s.", title)
         url = f"{self.BASE_URL}/search"
         params = {"query": title}
 
@@ -60,7 +60,7 @@ class IMDbAdapter(APIAdapter):
         for reliease in entries:
             if reliease["title"] == title:
                 release_id = reliease["id"]
-                logging.info("Found IMDb IDs for %s: %s.", title, release_id)
+                logging.debug("Found IMDb IDs for %s: %s.", title, release_id)
                 return release_id
 
         logging.error("No IMDb ID found for %s.", title)
@@ -68,7 +68,7 @@ class IMDbAdapter(APIAdapter):
 
     def __fetch_reviews(self, release_id: str) -> "list[dict]":
         """Fetches the reviews for a given title."""
-        logging.info("Fetching reviews for %s.", release_id)
+        logging.debug("Fetching reviews for %s.", release_id)
         url = f"{self.BASE_URL}/reviews/{release_id}"
         params = {"option": "helpfulness", "sortOrder": "descending"}
 
@@ -88,12 +88,12 @@ class IMDbAdapter(APIAdapter):
             return None
 
         reviews = list([review for review in response_json["reviews"]])
-        logging.info("Found %s reviews for %s", len(reviews), release_id)
+        logging.debug("Found %s reviews for %s", len(reviews), release_id)
         return reviews
 
     def __publish_reviews(self, title: str, reviews: "list[dict]"):
         """Publishes the reviews to the message queue."""
-        logging.info("Publishing %s reviews to message queue.", len(reviews))
+        logging.debug("Publishing %s reviews to message queue.", len(reviews))
         for review in reviews:
             timestamp = parse_date(review["date"])
             real_review = Review(
