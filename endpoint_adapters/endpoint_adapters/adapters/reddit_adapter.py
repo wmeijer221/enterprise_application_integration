@@ -34,6 +34,7 @@ class RedditAdapter(APIAdapter):
 
     def __build_reddit_instance(self) -> Reddit:
         """Factory method for reddit instance."""
+        # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
         return Reddit(
             client_id=getenv("REDDIT_CLIENT_ID"),
             client_secret=getenv("REDDIT_CLIENT_SECRET"),
