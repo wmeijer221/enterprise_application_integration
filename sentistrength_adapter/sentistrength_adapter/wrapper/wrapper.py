@@ -1,5 +1,5 @@
 from subprocess import Popen, PIPE
-from sentistrength_adapter.model.sentiment import Sentiment
+from sentistrength_adapter.wrapper.sentiment import Sentiment
 
 KILL_TIMEOUT = 0.5
 

@@ -2,10 +2,12 @@ from os import getenv
 import logging
 
 from sentistrength_adapter.messaging import QueueUser
+from sentistrength_adapter.utils.json_helper import str_to_object
+
 
 CHANNEL_NAME_KEY = "CHANNEL_NAME"
-QUEUE_NAME_KEY = "OUT_QUEUE_NAME"
-EXCHANGE_NAME_KEY = "OUT_EXCHANGE_NAME"
+QUEUE_NAME_KEY = "IN_QUEUE_NAME"
+EXCHANGE_NAME_KEY = "IN_EXCHANGE_NAME"
 
 
 class QueueSubscriber(QueueUser):
@@ -22,16 +24,18 @@ class QueueSubscriber(QueueUser):
         logging.debug(
             f"Initialized queue subscriber with: {channel_name=}, queue_name={self.queue_name}, exchange={self.exchange}"
         )
-
-        # Consume the RabbitMQ queue
         self.channel.basic_consume(
-            queue="hello",
-            on_message_callback=self.handle_message,
+            queue=self.queue_name,
+            on_message_callback=self.__handle_message,
             auto_ack=True,
         )
+    
+    def start(self):
+        self.channel.start_consuming()
 
-    def handle_message(self, ch, method, properties, body):
-        print(ch)
-        print(method)
-        print(properties)
-        print(body)
+    def __handle_message(self, channel, method, properties, body):
+        """Decodes message and passes it to listener."""
+        json_string = body.decode('utf-8')
+        message = str_to_object(json_string)
+        logging.debug(f"Received message: {message.uuid}.")
+        self.on_message_received(message)

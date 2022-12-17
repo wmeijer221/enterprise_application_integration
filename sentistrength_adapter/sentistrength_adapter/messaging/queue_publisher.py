@@ -1,14 +1,14 @@
 from os import getenv
 import logging
 
-
-from sentistrength_adapter.model.channel_message import ChannelMessage
+from sentistrength_adapter.messaging.channel_message import ChannelMessage
 from sentistrength_adapter.utils.json_helper import to_json
 from sentistrength_adapter.messaging import QueueUser
 
+
 CHANNEL_NAME_KEY = "CHANNEL_NAME"
-QUEUE_NAME_KEY = "IN_QUEUE_NAME"
-EXCHANGE_NAME_KEY = "IN_EXCHANGE_NAME"
+QUEUE_NAME_KEY = "OUT_QUEUE_NAME"
+EXCHANGE_NAME_KEY = "OUT_EXCHANGE_NAME"
 
 
 class QueuePublisher(QueueUser):
@@ -29,8 +29,10 @@ class QueuePublisher(QueueUser):
         """Publishes the message to the channel."""
         logging.debug(f"Publishing new channel message: {message.uuid}")
         json_message = to_json(message)
+        logging.warning(json_message)
         self.channel.basic_publish(
             exchange=self.exchange,
             routing_key=self.queue_name,
             body=json_message,
         )
+        

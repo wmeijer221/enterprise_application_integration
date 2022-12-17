@@ -37,3 +37,13 @@ services:
       - CHANNEL_NAME=messaging
       - QUEUE_NAME=new_review
       - UPDATE_INTERVAL=120
+
+  sentistrength_adapter:
+    build: sentistrength_adapter
+    depends_on:
+      - messaging
+    environment:
+      - CHANNEL_NAME=messaging
+      - IN_QUEUE_NAME=new_review
+      - OUT_QUEUE_NAME=new_sentiment
+      - CLASSIFICATION_TYPE=scale

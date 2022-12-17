@@ -14,3 +14,4 @@ class ChannelMessage:
         self.timestamp = str(datetime.datetime.now())
         self.adapter_version = adapter_version
         self.body = body
+        

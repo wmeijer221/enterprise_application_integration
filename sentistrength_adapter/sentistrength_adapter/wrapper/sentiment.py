@@ -1,4 +1,3 @@
-
 class Sentiment():
     """Container object for sentiment"""
 
