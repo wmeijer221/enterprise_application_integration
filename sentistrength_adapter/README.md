@@ -16,7 +16,7 @@ Java 11 was used during the implementation.
 The easiest way to implement the wrapper is as follows:
 
 ```python
-from wrapper import SentistrengthWrapper
+from sentistrength_adapter.wrapper import SentistrengthWrapper
 
 with SentistrengthWrapper() as wrapper:
     result = wrapper.get_sentiment("This wrapper is the best!")
@@ -25,7 +25,7 @@ with SentistrengthWrapper() as wrapper:
 Alternatively, you could do:
 
 ```python
-from wrapper import SentistrengthWrapper
+from sentistrength_adapter.wrapper import SentistrengthWrapper
 
 wrapper = SentistrengthWrapper()
 wrapper.connect()
@@ -42,8 +42,8 @@ Additionally, by default the wrapper uses `trinary` classification, which can be
 The easiest way to implement the adapter is as follows:
 
 ```python
-from adapter import SentistrengthAdapter
-from wrapper import SentistrengthWrapper
+from sentistrength_adapter.adapter import SentistrengthAdapter
+from sentistrength_adapter.wrapper import SentistrengthWrapper
 
 with SentistrengthWrapper() as wrapper:
     adapter = SentistrengthAdapter(wrapper)
