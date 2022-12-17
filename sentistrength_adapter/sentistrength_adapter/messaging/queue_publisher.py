@@ -29,7 +29,6 @@ class QueuePublisher(QueueUser):
         """Publishes the message to the channel."""
         logging.debug(f"Publishing new channel message: {message.uuid}")
         json_message = to_json(message)
-        logging.warning(json_message)
         self.channel.basic_publish(
             exchange=self.exchange,
             routing_key=self.queue_name,
