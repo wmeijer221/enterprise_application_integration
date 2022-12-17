@@ -4,7 +4,7 @@ import nltk
 nltk.download('punkt')
 
 from sentistrength_adapter.adapter import SentistrengthAdapter
-from sentistrength_adapter.wrapper.wrapper import SentistrengthWrapper
+from sentistrength_adapter.wrapper import SentistrengthWrapper
 
 
 logging.basicConfig(level=logging.WARNING)
