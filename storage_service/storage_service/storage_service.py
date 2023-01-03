@@ -1,4 +1,5 @@
 import logging
+import json
 from bson import json_util
 from os import getenv
 from storage_service.mongo_db import MongoDB
@@ -28,15 +29,25 @@ class StorageService:
         
         # Queue consumer instance
         self.queue_consumer = QueueConsumer()
-        LOGGER.debug("Create consumer for queue new_review")
+        # LOGGER.debug("Create consumer for queue new_review")
+        # self.queue_names = json.loads(getenv(QUEUE_NAMES_KEY))
         self.queue_consumer.add_queue_consumer('new_review', self.__new_review_callback)
-        # self.queue_consumer.add_queue_consumer('new_sentiment', self.__new_review_callback)
+        self.queue_consumer.add_queue_consumer('new_sentiment', self.__new_sentiment_callback)
         self.queue_consumer.start_consuming()
-
 
     def __new_review_callback(self, channel, method, properties, body):
         payload = body.decode()
+        payload_dict = json_util.loads(payload)['body']
         # LOGGER.debug("Storing new review:\n" + payload)
-        inserted_id = self.mongo.getDB().reviews.insert_one(json_util.loads(payload)['body']).inserted_id
-        LOGGER.debug(f"Inserted document {inserted_id} in MongoBD")
+        inserted_id = self.mongo.getDB().reviews.insert_one(payload_dict).inserted_id
+        LOGGER.debug(f"Inserted document {inserted_id} in MongoDB")
 
+    def __new_sentiment_callback(self, channel, method, properties, body):
+        payload = body.decode()
+        payload_dict = json_util.loads(payload)['body']
+        review_uuid = payload_dict.pop("review_uuid")
+        sentiment_dict = {"sentiment": payload_dict}
+        filter_query = {"uuid": review_uuid}
+        # LOGGER.debug("Storing new sentiment:\n" + json.dumps(sentiment_dict))
+        update_result = self.mongo.getDB().reviews.update_one(filter_query, {"$set": sentiment_dict})
+        LOGGER.debug(f"Updated {update_result.modified_count} document(s) of {update_result.matched_count} matches in MongoDB")
