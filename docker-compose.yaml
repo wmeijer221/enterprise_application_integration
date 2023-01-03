@@ -1,8 +1,23 @@
 services:
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo/data-mount:/data/db # Persist data through mounted volume
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo-user
+      - MONGO_INITDB_ROOT_PASSWORD=mongo-pass
+
   messaging:
     image: rabbitmq:3.11-management
     ports:
       - 8081:15672
+
+  storage_service:
+    build: storage_service
+    depends_on:
+      - messaging
 
   # test_endpoint_adapter:
   #   build: endpoint_adapters
@@ -24,16 +39,16 @@ services:
       - QUEUE_NAME=new_review
       - UPDATE_INTERVAL=3600
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
-      - REDDIT_CLIENT_ID=
-      - REDDIT_CLIENT_SECRET=
+      - REDDIT_CLIENT_ID=pgF2sXW4dYR9upp4FMYNhA
+      - REDDIT_CLIENT_SECRET=fLvx_m65iRceZQ9a-L4aL4nH2mHFiQ
       - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
 
-  imdb_endpoint_adapter:
-    build: endpoint_adapters
-    depends_on:
-      - messaging
-    environment:
-      - ENDPOINT_TYPE=imdb
-      - CHANNEL_NAME=messaging
-      - QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=120
+  # imdb_endpoint_adapter:
+  #   build: endpoint_adapters
+  #   depends_on:
+  #     - messaging
+  #   environment:
+  #     - ENDPOINT_TYPE=imdb
+  #     - CHANNEL_NAME=messaging
+  #     - QUEUE_NAME=new_review
+  #     - UPDATE_INTERVAL=120
