@@ -3,8 +3,8 @@
 	"dockerComposeFile": [
 		"../docker-compose.yaml"
 	],
-	"service": "endpoint_adapters",
-	"workspaceFolder": "/app/endpoint_adapters",
+	"service": "twitter_endpoint_adapter",
+	"workspaceFolder": "/app",
 	"customizations": {
 		"vscode": {
 			"extensions": [
