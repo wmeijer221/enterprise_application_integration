@@ -15,4 +15,4 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 COPY . .
 
-CMD ["python", "./src/main.py"]
+CMD ["python", "-m", "sentistrength_adapter"]
