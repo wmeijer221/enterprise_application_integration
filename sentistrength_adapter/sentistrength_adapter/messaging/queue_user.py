@@ -17,7 +17,7 @@ class QueueUser:
                     pika.ConnectionParameters(host=channel_name)
                 )
                 return connection
-            except gaierror:
+            except (gaierror, pika.exceptions.AMQPConnectionError):
                 logging.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.",
                               channel_name, tries, self.MAX_RETRIES, self.TIMEOUT)
                 if tries >= self.MAX_RETRIES:

@@ -49,7 +49,7 @@ class QueueConsumer:
                 )
                 try:
                         connection.ioloop.start()
-                except gaierror:
+                except (gaierror, pika.exceptions.AMQPConnectionError):
                     LOGGER.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.", rabbit_mq_host, tries, self.MAX_RETRIES, self.TIMEOUT)
                     if tries >= self.MAX_RETRIES:
                         raise
@@ -67,16 +67,17 @@ class QueueConsumer:
                         pika.ConnectionParameters(host=rabbit_mq_host)
                     )
                     return connection
-                except gaierror:
+                except (gaierror, pika.exceptions.AMQPConnectionError):
                     LOGGER.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.", rabbit_mq_host, tries, self.MAX_RETRIES, self.TIMEOUT)
                     if tries >= self.MAX_RETRIES:
                         raise
                     time.sleep(self.TIMEOUT)
         raise Exception("Illegal state; this should not be reached.")
 
-    def add_queue_consumer(self, queue, on_message_callback):
-        LOGGER.debug(f"Starting to consume queue {queue} with callback {on_message_callback}")
-        self.channel.basic_consume(queue=queue, on_message_callback=on_message_callback, auto_ack=True)
+    def add_queue_consumer(self, queue_name, on_message_callback):
+        LOGGER.debug(f"Starting to consume queue {queue_name} with callback {on_message_callback}")
+        self.channel.queue_declare(queue=queue_name)
+        self.channel.basic_consume(queue=queue_name, on_message_callback=on_message_callback, auto_ack=True)
 
     def start_consuming(self):
         try:

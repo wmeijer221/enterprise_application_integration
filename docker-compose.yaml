@@ -39,9 +39,9 @@ services:
       - QUEUE_NAME=new_review
       - UPDATE_INTERVAL=3600
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
-      - REDDIT_CLIENT_ID=pgF2sXW4dYR9upp4FMYNhA
-      - REDDIT_CLIENT_SECRET=fLvx_m65iRceZQ9a-L4aL4nH2mHFiQ
-      - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
+      # - REDDIT_CLIENT_ID=
+      # - REDDIT_CLIENT_SECRET=
+      # - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
 
   imdb_endpoint_adapter:
     build: endpoint_adapters
@@ -73,6 +73,6 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      - IN_QUEUE_NAME=new_review
+      - IN_QUEUE_NAME=new_review_sentistrength
       - OUT_QUEUE_NAME=new_sentiment
       - CLASSIFICATION_TYPE=scale

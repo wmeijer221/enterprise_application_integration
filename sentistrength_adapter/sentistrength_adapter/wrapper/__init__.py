@@ -1,2 +1,2 @@
-from sentistrength_adapter.wrapper.wrapper import SentistrengthWrapper
 from sentistrength_adapter.wrapper.sentiment import Sentiment
+from sentistrength_adapter.wrapper.wrapper import SentistrengthWrapper
