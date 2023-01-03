@@ -49,7 +49,7 @@ class QueueConsumer:
                 )
                 try:
                         connection.ioloop.start()
-                except gaierror:
+                except (gaierror, pika.exceptions.AMQPConnectionError):
                     LOGGER.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.", rabbit_mq_host, tries, self.MAX_RETRIES, self.TIMEOUT)
                     if tries >= self.MAX_RETRIES:
                         raise
@@ -67,7 +67,7 @@ class QueueConsumer:
                         pika.ConnectionParameters(host=rabbit_mq_host)
                     )
                     return connection
-                except gaierror:
+                except (gaierror, pika.exceptions.AMQPConnectionError):
                     LOGGER.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.", rabbit_mq_host, tries, self.MAX_RETRIES, self.TIMEOUT)
                     if tries >= self.MAX_RETRIES:
                         raise
