@@ -37,3 +37,17 @@ services:
       - CHANNEL_NAME=messaging
       - QUEUE_NAME=new_review
       - UPDATE_INTERVAL=120
+
+  twitter_endpoint_adapter:
+    build: endpoint_adapters
+    depends_on:
+      - messaging
+    environment:
+      - ENDPOINT_TYPE=twitter
+      - CHANNEL_NAME=messaging
+      - QUEUE_NAME=new_review
+      - UPDATE_INTERVAL=3600
+      - TWITTER_BEARER_TOKEN=
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+        - ./:/app:cached
