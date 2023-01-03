@@ -75,7 +75,7 @@ class QueueConsumer:
         raise Exception("Illegal state; this should not be reached.")
 
     def add_queue_consumer(self, queue_name, on_message_callback):
-        LOGGER.debug(f"Starting to consume queue {queue} with callback {on_message_callback}")
+        LOGGER.debug(f"Starting to consume queue {queue_name} with callback {on_message_callback}")
         self.channel.queue_declare(queue=queue_name)
         self.channel.basic_consume(queue=queue_name, on_message_callback=on_message_callback, auto_ack=True)
 
