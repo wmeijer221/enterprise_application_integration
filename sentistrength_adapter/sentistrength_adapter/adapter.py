@@ -20,7 +20,6 @@ class SentistrengthAdapter():
         self.publisher = QueuePublisher()
         self.subscriber = QueueSubscriber(
             message_type=Review, on_message_received=self.on_message_received)
-        self.publisher.publish(ChannelMessage({}, "asdf", "0.2.1"))
         self.subscriber.start()
 
     def on_message_received(self, message: ChannelMessage):
