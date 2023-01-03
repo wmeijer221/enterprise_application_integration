@@ -19,6 +19,17 @@ services:
     depends_on:
       - messaging
 
+  rest_api:
+    build: rest_api
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+    volumes:
+      - ./rest_api/api/:/app/api/
+
   # test_endpoint_adapter:
   #   build: endpoint_adapters
   #   depends_on:
