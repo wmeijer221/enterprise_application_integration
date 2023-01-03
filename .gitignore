@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Licensed material of Sentistrength
-/sentistrength/data/*.txt
-/sentistrength/jars/*.jar
+/sentistrength_adapter/data/*.txt
+/sentistrength_adapter/jars/*.jar

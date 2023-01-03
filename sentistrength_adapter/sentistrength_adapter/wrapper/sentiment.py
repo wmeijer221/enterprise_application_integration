@@ -7,6 +7,3 @@ class Sentiment():
         self.positivity = positivity
         self.negativity = negativity
         self.polarity = classification
-
-    def __str__(self) -> str:
-        return f'{self.text=}, {self.polarity=}, {self.positivity=}, {self.negativity=}'
