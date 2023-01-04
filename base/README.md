@@ -25,6 +25,8 @@ except:
     base = importlib.util.module_from_spec(spec)
     sys.modules["base"] = base
     spec.loader.exec_module(base)
+from base._version import VERSION as BASE_VERSION
+logging.debug(f'Starting with: {BASE_VERSION=}')
 ```
 
 Consequently, because a dependency on ``base`` is created, the ``base`` package MUST be built prior to building the inheriting docker image, which can be done as follows:
