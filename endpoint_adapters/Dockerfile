@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Setting up Python.
-FROM python:3.8-slim-buster
+FROM sentiment_pipeline_base:latest
 WORKDIR /app/endpoint_adapters
 
 # Installs python dependencies etc.
