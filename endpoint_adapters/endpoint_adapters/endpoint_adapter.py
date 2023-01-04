@@ -1,13 +1,13 @@
 from os import getenv
 import logging
 
-from endpoint_adapters.title_broker import TitleBroker
-from endpoint_adapters.queue_publisher import QueuePublisher
-from endpoint_adapters.adapters import APIAdapter, get_adapter_of_type
-from endpoint_adapters.model.channel_message import ChannelMessage
-from endpoint_adapters.model.review import Review
+from base.canonical_model.review import Review
+from base.messaging.queue_publisher import QueuePublisher
+from base.messaging.channel_message import ChannelMessage
 
 from endpoint_adapters._version import VERSION
+from endpoint_adapters.adapters import APIAdapter, get_adapter_of_type
+from endpoint_adapters.title_broker import TitleBroker
 
 ENDPOINT_TYPE_KEY = "ENDPOINT_TYPE"
 REVIEW_MESSAGE_TYPE = "review"

@@ -1,6 +1,7 @@
 import datetime
 
-from endpoint_adapters.model.review import Review
+from base.canonical_model.review import Review
+
 from endpoint_adapters.adapters import APIAdapter
 
 

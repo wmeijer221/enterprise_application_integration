@@ -8,8 +8,9 @@ from praw.reddit import Reddit
 from praw.models import SubredditMessage
 from prawcore.exceptions import ResponseException
 
+from base.canonical_model.review import Review
+
 from endpoint_adapters.adapters import APIAdapter
-from endpoint_adapters.model.review import Review
 
 MAX_SUBREDDITS = 10
 MAX_POSTS = 100
@@ -85,7 +86,7 @@ class RedditAdapter(APIAdapter):
             timestamp = datetime.datetime.fromtimestamp(post.created_utc)
             review = Review(
                 title=title,
-                message_text=post.selftext,
+                text=post.selftext,
                 source_name="reddit",
                 source_id=f'{str(post.subreddit)}/{str(post.id)}',
                 timestamp=timestamp,

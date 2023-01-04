@@ -15,6 +15,7 @@ class QueuePublisher(QueueUser):
     """Generic interface to publish to a message queue."""
 
     def __init__(self):
+        # TODO: make env keys a constructor argument; for flexibility.
         channel_name = getenv(CHANNEL_NAME_KEY)
         self.connection = self._try_connect(channel_name)
         self.channel = self.connection.channel()

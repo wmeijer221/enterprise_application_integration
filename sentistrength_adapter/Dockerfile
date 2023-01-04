@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# Setting up Python.
+# Setting up base image.
 FROM sentiment_pipeline_base:latest
 WORKDIR /app
 

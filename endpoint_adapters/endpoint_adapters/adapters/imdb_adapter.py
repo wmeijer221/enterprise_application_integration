@@ -5,8 +5,9 @@ import json
 import logging
 import requests
 
+from base.canonical_model.review import Review
+
 from endpoint_adapters.adapters import APIAdapter
-from endpoint_adapters.model.review import Review
 from endpoint_adapters.utils.http_status_code_helper import is_success_code
 
 
@@ -98,7 +99,7 @@ class IMDbAdapter(APIAdapter):
             timestamp = parse_date(review["date"])
             real_review = Review(
                 title=title,
-                message_text=review["content"],
+                text=review["content"],
                 source_name="imdb",
                 source_id=review["id"],
                 timestamp=timestamp,

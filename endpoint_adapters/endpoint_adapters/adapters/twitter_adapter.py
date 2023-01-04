@@ -4,7 +4,8 @@ from os import getenv
 
 import requests
 
-from endpoint_adapters.model.review import Review
+from base.canonical_model.review import Review
+
 from endpoint_adapters.adapters import APIAdapter
 
 bearer_token = getenv("TWITTER_BEARER_TOKEN")
@@ -82,7 +83,7 @@ class TestAdapter(APIAdapter):
             review = Review(
                 # TODO: Discuss what to do with the title.
                 title="",
-                message_text=post["text"],
+                text=post["text"],
                 source_name="twitter",
                 source_id=post["id"],
                 timestamp=timestamp,
