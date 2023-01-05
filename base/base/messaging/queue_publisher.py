@@ -1,9 +1,9 @@
 from os import getenv
 import logging
 
-from sentistrength_adapter.messaging.channel_message import ChannelMessage
-from sentistrength_adapter.utils.json_helper import to_json
-from sentistrength_adapter.messaging import QueueUser
+from base.messaging.channel_message import ChannelMessage
+from base.utils.json_helper import to_json
+from base.messaging import QueueUser
 
 
 CHANNEL_NAME_KEY = "CHANNEL_NAME"
@@ -15,6 +15,7 @@ class QueuePublisher(QueueUser):
     """Generic interface to publish to a message queue."""
 
     def __init__(self):
+        # TODO: make env keys a constructor argument; for flexibility.
         channel_name = getenv(CHANNEL_NAME_KEY)
         self.connection = self._try_connect(channel_name)
         self.channel = self.connection.channel()

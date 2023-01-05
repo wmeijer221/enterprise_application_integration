@@ -1,10 +1,10 @@
 import nltk
 
 from sentistrength_adapter._version import VERSION
-from sentistrength_adapter.canonical_model.review import Review
-from sentistrength_adapter.canonical_model.review_sentiment import ReviewSentiment
-from sentistrength_adapter.messaging import QueuePublisher, QueueSubscriber
-from sentistrength_adapter.messaging.channel_message import ChannelMessage
+from base.canonical_model.review import Review
+from base.canonical_model.review_sentiment import ReviewSentiment
+from base.messaging import QueuePublisher, QueueSubscriber
+from base.messaging.channel_message import ChannelMessage
 from sentistrength_adapter.wrapper import Sentiment
 from sentistrength_adapter.wrapper import SentistrengthWrapper
 

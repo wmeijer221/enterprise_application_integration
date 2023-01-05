@@ -1,8 +1,8 @@
 from os import getenv
 import logging
 
-from sentistrength_adapter.messaging import QueueUser
-from sentistrength_adapter.utils.json_helper import str_to_object
+from base.messaging import QueueUser
+from base.utils.json_helper import str_to_object
 
 
 CHANNEL_NAME_KEY = "CHANNEL_NAME"
