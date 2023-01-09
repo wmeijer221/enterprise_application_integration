@@ -76,3 +76,10 @@ services:
       - IN_QUEUE_NAME=new_review_sentistrength
       - OUT_QUEUE_NAME=new_sentiment
       - CLASSIFICATION_TYPE=scale
+
+  title_finder:
+    build: title_finder
+    depends_on: 
+      - messaging
+    environment:
+      - CHANNEL_NAME=messaging
