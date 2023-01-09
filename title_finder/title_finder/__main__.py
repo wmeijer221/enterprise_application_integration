@@ -1,5 +1,5 @@
 import logging 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 
 # Imports the base module
 import importlib
@@ -17,6 +17,7 @@ except:
 from base._version import VERSION as BASE_VERSION
 
 from title_finder._version import VERSION
+from title_finder.simple_finder import SimpleTitleFinder
 
 logo = f"""
   _______ _ _   _        ______ _           _           
@@ -25,5 +26,9 @@ logo = f"""
     | |  | | __| |/ _ \ |  __| | | '_ \ / _` |/ _ \ '__|
     | |  | | |_| |  __/ | |    | | | | | (_| |  __/ |   
     |_|  |_|\__|_|\___| |_|    |_|_| |_|\__,_|\___|_|   
-                    (v{VERSION} with base v{BASE_VERSION})                                                   
+
+                                    (v{VERSION} - b{BASE_VERSION})                                                   
 """
+logging.info(logo)
+
+SimpleTitleFinder()

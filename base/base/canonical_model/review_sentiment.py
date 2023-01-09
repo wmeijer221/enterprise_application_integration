@@ -1,4 +1,5 @@
 
+# TODO: update to dataclass.
 class ReviewSentiment:
     def __init__(self, review_uuid: str, positivity: int = 0, 
                  negativity: int = 0, polarity: int = 0):

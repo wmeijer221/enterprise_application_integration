@@ -83,3 +83,5 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
+      - API_KEY=
+      - SLEEP_INTERVAL=86400

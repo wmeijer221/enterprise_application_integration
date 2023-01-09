@@ -2,6 +2,7 @@ import datetime
 from uuid import uuid4
 
 
+# TODO: update to dataclass.
 class Review:
     """Data object for reviews."""
 
