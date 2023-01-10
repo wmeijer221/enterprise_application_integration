@@ -78,12 +78,16 @@ class TMDBFinder:
             return []
 
         data = json.loads(response.text)
-        movies = [Title(
-            str(uuid4()), 
-            self.__get_title(entry), 
-            endpoint[0], 
-            self.__to_genres(entry)) 
-        for entry in data["results"]]
+        movies = []
+        for entry in data["results"]:
+            genres = self.__to_genres(entry)
+            cast, crew = self.__get_cast_and_crew(endpoint[0], entry)
+            new_title = Title(
+                str(uuid4()),
+                self.__get_title(entry),
+                endpoint[0],
+                genres, cast, crew)
+            movies.append(new_title)
 
         return movies
 
@@ -138,6 +142,24 @@ class TMDBFinder:
                 if id in self.known_genres else UNKNOWN_GENRE
             genre_names.append(genre)
         return tuple(genre_names)
+
+    def __get_cast_and_crew(self,endpoint: str, entry: dict) -> 'tuple[list[str], list[str]]':
+        url = f'{BASE_URL}{endpoint}/{entry["id"]}/credits'
+        params = {"api_key": self.api_key}
+        try: 
+            response = requests.get(url, params=params, timeout=TIMEOUT)
+        except requests.exceptions.Timeout as ex:
+            logging.warning(f"Failed request to \"{url}\" with message {ex}")
+            return [], []
+
+        if not is_success_code(response.status_code):
+            return [], []
+
+        data = json.loads(response.text)
+        cast = [res["original_name"] for res in data["cast"]]
+        crew = [res["original_name"] for res in data["crew"]]
+
+        return cast, crew
 
     def __publish_new_titles(self, titles: "list[Title]"):
         """
