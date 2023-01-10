@@ -26,8 +26,8 @@ services:
   #   environment:
   #     - ENDPOINT_TYPE=test
   #     - CHANNEL_NAME=messaging
-  #     - NEW_REVIEW_QUEUE=new_review
-  #     - NEW_TITLE_PUBSUB=new_title
+  #     - NEW_REVIEW_OUT=new_review
+  #     - NEW_TITLE_IN=new_title
 
   reddit_endpoint_adapter:
     build: endpoint_adapters
@@ -36,8 +36,8 @@ services:
     environment:
       - ENDPOINT_TYPE=reddit
       - CHANNEL_NAME=messaging
-      - NEW_REVIEW_QUEUE=new_review
-      - NEW_TITLE_PUBSUB=new_title
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
       # - REDDIT_CLIENT_ID=
       # - REDDIT_CLIENT_SECRET=
@@ -50,8 +50,8 @@ services:
     environment:
       - ENDPOINT_TYPE=imdb
       - CHANNEL_NAME=messaging
-      - NEW_REVIEW_QUEUE=new_review
-      - NEW_TITLE_PUBSUB=new_title
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
 
   twitter_endpoint_adapter:
     build: endpoint_adapters
@@ -60,7 +60,8 @@ services:
     environment:
       - ENDPOINT_TYPE=twitter
       - CHANNEL_NAME=messaging
-      - OUT_QUEUE_NAME=new_review
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
       - UPDATE_INTERVAL=3600
       - TWITTER_BEARER_TOKEN=
     command: /bin/sh -c "while sleep 1000; do :; done"
@@ -73,8 +74,8 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      - IN_QUEUE_NAME=new_review_sentistrength
-      - OUT_QUEUE_NAME=new_sentiment
+      - NEW_REVIEW_IN=new_review
+      - NEW_SENTIMENT_OUT=new_sentiment
       - CLASSIFICATION_TYPE=scale
 
   title_finder:
@@ -85,6 +86,6 @@ services:
       - CHANNEL_NAME=messaging
       # - API_KEY=
       - SLEEP_INTERVAL=86400
-      - OUT_CHANNEL=messaging
-      - OUT_QUEUE=new_title
+      - CHANNEL=messaging
+      - NEW_TITLE_OUT=new_title
       - START_DELAY=5

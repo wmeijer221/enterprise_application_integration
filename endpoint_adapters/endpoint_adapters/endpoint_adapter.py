@@ -9,15 +9,15 @@ from endpoint_adapters.title_broker import TitleBroker
 
 
 ENDPOINT_TYPE_KEY = "ENDPOINT_TYPE"
-REVIEW_MESSAGE_TYPE = "review"
 CHANNEL_NAME_KEY = "CHANNEL_NAME"
-REVIEW_QUEUE_KEY = "NEW_REVIEW_QUEUE"
+NEW_REVIEW_OUT_KEY = "NEW_REVIEW_OUT"
+REVIEW_MESSAGE_TYPE = "review"
 
 
 class EndpointAdapter:
     def __init__(self):
         channel_name = getenv(CHANNEL_NAME_KEY)
-        self.queue_name = getenv(REVIEW_QUEUE_KEY)
+        self.queue_name = getenv(NEW_REVIEW_OUT_KEY)
         create_connection(channel_name)
         self.adapter, self.adapter_type = self.__build_api_adapter()
         self.title_broker = TitleBroker(self.adapter)

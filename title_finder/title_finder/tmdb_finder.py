@@ -15,8 +15,8 @@ from title_finder._version import NAME, VERSION
 API_KEY_KEY = "API_KEY"
 SLEEP_INTERVAL_KEY = "SLEEP_INTERVAL"
 TIMEOUT = 5
-CHANNEL_KEY = "OUT_CHANNEL"
-QUEUE_KEY = "OUT_QUEUE"
+CHANNEL_KEY = "CHANNEL"
+NEW_TITLE_OUT = "NEW_TITLE_OUT"
 
 BASE_URL = "https://api.themoviedb.org/3/"
 UNKNOWN_GENRE = "unknown"
@@ -115,7 +115,7 @@ class TMDBFinder:
         return tuple(genre_names)
 
     def __publish_new_titles(self, titles: list):
-        queue_name = getenv(QUEUE_KEY)
+        queue_name = getenv(NEW_TITLE_OUT)
         for title in titles:
             message = ChannelMessage(
                 str(uuid1()), str(uuid4()), "title",
