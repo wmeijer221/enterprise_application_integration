@@ -23,6 +23,11 @@ UNKNOWN_GENRE = "unknown"
 
 
 class TMDBFinder:
+    """
+    Title finder that queries various movie/tv show lists 
+    on The Movie DB and publishes them to the system.
+    """
+
     endpoints = [
         ("movie", "popular"),
         ("movie", "now_playing"),
@@ -39,6 +44,10 @@ class TMDBFinder:
         create_connection(getenv(CHANNEL_KEY))
 
     def start_collecting(self):
+        """
+        Starts collecting titles.
+        """
+
         self.running = True
 
         while self.running:
@@ -52,6 +61,10 @@ class TMDBFinder:
             time.sleep(self.sleep_interval)
 
     def __get_details(self, endpoint: str) -> 'list[Title]':
+        """
+        Loads show details from the provided endpoint.
+        """
+
         s_endpoint = "/".join(endpoint)
         url = f'{BASE_URL}{s_endpoint}'
         params = {"api_key": self.api_key}
@@ -75,10 +88,18 @@ class TMDBFinder:
         return movies
 
     def __get_title(self, entry: dict) -> str:
+        """
+        Returns the entry's title.
+        """
+
         return entry['original_title'] \
             if "original_title" in entry else entry['original_name']
 
     def __build_genre_names(self) -> dict[int, str]:
+        """
+        Creates a mapping from genre ids to genre names.
+        """
+
         loaded_genres = {}
 
         endpoints = [
@@ -106,6 +127,10 @@ class TMDBFinder:
         return loaded_genres
 
     def __to_genres(self, entry: dict) -> 'tuple[str]':
+        """
+        Translates genre_id list to genre name list.
+        """
+
         genre_ids = entry["genre_ids"]
         genre_names = []
         for id in genre_ids:
@@ -114,7 +139,11 @@ class TMDBFinder:
             genre_names.append(genre)
         return tuple(genre_names)
 
-    def __publish_new_titles(self, titles: list):
+    def __publish_new_titles(self, titles: list[Title]):
+        """
+        Publishes Title objects to the message channel.
+        """
+
         queue_name = getenv(NEW_TITLE_OUT)
         for title in titles:
             message = ChannelMessage(
