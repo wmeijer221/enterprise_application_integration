@@ -30,7 +30,8 @@ class ChannelMessage:
     body: object
 
     @classmethod
-    def channel_message_from(cls, message_type: str, sender_type: str, sender_version: str, body: object) -> 'ChannelMessage':
+    def channel_message_from(cls, message_type: str, sender_type: str, 
+                             sender_version: str, body: object) -> 'ChannelMessage':
         """
         Factory method for constructing a ``ChannelMessage`` using default settings for IDs and datetime.
         """
