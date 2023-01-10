@@ -85,3 +85,5 @@ services:
       - CHANNEL_NAME=messaging
       - API_KEY=
       - SLEEP_INTERVAL=86400
+      - OUT_CHANNEL=messaging
+      - OUT_QUEUE=new_title
