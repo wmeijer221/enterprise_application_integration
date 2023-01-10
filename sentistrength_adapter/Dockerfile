@@ -3,6 +3,7 @@
 # Setting up base image.
 FROM sentiment_pipeline_base:latest
 WORKDIR /app
+ENV PYTHONPATH "/app/base:/app/sentistrength_adapter"
 
 # Setting up Java.
 RUN apt update \

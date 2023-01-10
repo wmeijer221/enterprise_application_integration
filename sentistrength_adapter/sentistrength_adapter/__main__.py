@@ -1,35 +1,32 @@
 import logging 
-logging.basicConfig(level=logging.WARNING)
-
-# Imports the base module
-import importlib
-try:
-    # According to the docker container structure.
-    base = importlib.import_module("base", "..base")
-except:
-    # According to the repository structure in case it's ran locally.
-    import sys
-    logging.warning("Failed to load base, trying alternative source.")
-    spec = importlib.util.spec_from_file_location("base", "../base/base/__init__.py")
-    base = importlib.util.module_from_spec(spec)
-    sys.modules["base"] = base
-    spec.loader.exec_module(base)
-from base._version import VERSION as BASE_VERSION
-logging.debug(f'Starting with: {BASE_VERSION=}')
 
 # Sentistrength logic.
 from os import getenv
 import nltk
-nltk.download('punkt')
 
+from base._version import VERSION as BASE_VERSION
 from sentistrength_adapter._version import VERSION
 from sentistrength_adapter.adapter import SentistrengthAdapter
 from sentistrength_adapter.wrapper import SentistrengthWrapper
 
-logging.debug(f'Starting sentistrength adapter version {VERSION}.')
+logging.basicConfig(level=logging.INFO)
+
+title = f"""
+ __            _   _     _                        _   _     
+/ _\ ___ _ __ | |_(_)___| |_ _ __ ___ _ __   __ _| |_| |__  
+\ \ / _ \ '_ \| __| / __| __| '__/ _ \ '_ \ / _` | __| '_ \ 
+_\ \  __/ | | | |_| \__ \ |_| | |  __/ | | | (_| | |_| | | |
+\__/\___|_| |_|\__|_|___/\__|_|  \___|_| |_|\__, |\__|_| |_|
+                                            |___/           
+
+                                        (v{VERSION} - b{BASE_VERSION})
+"""
+logging.info(title)
 
 CLASSIFICATION_TYPE_KEY = "CLASSIFICATION_TYPE"
 classification = getenv(CLASSIFICATION_TYPE_KEY)
+
+nltk.download('punkt')
 
 with SentistrengthWrapper(classification=classification) as wrapper:
     adapter = SentistrengthAdapter(wrapper)

@@ -3,6 +3,8 @@ Implements basic channel communication methods for
 standard queues and standard publish-subscribe channels..
 """
 
+# TODO: Optimally, the software implementation should have to bind itself to either a queue or a pubsub.
+
 from dataclasses import dataclass
 import datetime
 import logging
