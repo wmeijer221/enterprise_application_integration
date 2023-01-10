@@ -19,7 +19,16 @@ services:
     depends_on:
       - messaging
 
-      # - QUERY_INTERVAL=3600
+  # test_endpoint_adapter:
+  #   build: endpoint_adapters
+  #   depends_on:
+  #     - messaging
+  #   environment:
+  #     - ENDPOINT_TYPE=test
+  #     - CHANNEL_NAME=messaging
+  #     - NEW_REVIEW_OUT=new_review
+  #     - NEW_TITLE_IN=new_title
+  #     - QUERY_INTERVAL=3600
 
   reddit_endpoint_adapter:
     build: endpoint_adapters
@@ -45,6 +54,7 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_OUT=new_review
       - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
 
   twitter_endpoint_adapter:
     build: endpoint_adapters
