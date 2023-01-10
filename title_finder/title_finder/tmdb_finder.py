@@ -139,7 +139,7 @@ class TMDBFinder:
             genre_names.append(genre)
         return tuple(genre_names)
 
-    def __publish_new_titles(self, titles: list[Title]):
+    def __publish_new_titles(self, titles: "list[Title]"):
         """
         Publishes Title objects to the message channel.
         """
