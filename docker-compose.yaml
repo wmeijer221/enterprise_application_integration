@@ -26,8 +26,9 @@ services:
   #   environment:
   #     - ENDPOINT_TYPE=test
   #     - CHANNEL_NAME=messaging
-  #     - QUEUE_NAME=new_review
-  #     - UPDATE_INTERVAL=10
+  #     - NEW_REVIEW_OUT=new_review
+  #     - NEW_TITLE_IN=new_title
+  #     - QUERY_INTERVAL=3600
 
   reddit_endpoint_adapter:
     build: endpoint_adapters
@@ -36,8 +37,9 @@ services:
     environment:
       - ENDPOINT_TYPE=reddit
       - CHANNEL_NAME=messaging
-      - OUT_QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=3600
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
       # - REDDIT_CLIENT_ID=
       # - REDDIT_CLIENT_SECRET=
@@ -50,8 +52,9 @@ services:
     environment:
       - ENDPOINT_TYPE=imdb
       - CHANNEL_NAME=messaging
-      - OUT_QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=120
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
 
   twitter_endpoint_adapter:
     build: endpoint_adapters
@@ -60,8 +63,9 @@ services:
     environment:
       - ENDPOINT_TYPE=twitter
       - CHANNEL_NAME=messaging
-      - OUT_QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=3600
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
       - TWITTER_BEARER_TOKEN=
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
@@ -73,6 +77,19 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      - IN_QUEUE_NAME=new_review_sentistrength
-      - OUT_QUEUE_NAME=new_sentiment
+      - NEW_REVIEW_IN=new_review
+      - NEW_SENTIMENT_OUT=new_sentiment
       - CLASSIFICATION_TYPE=scale
+
+  title_finder:
+    build: title_finder
+    depends_on: 
+      - messaging
+    environment:
+      - CHANNEL_NAME=messaging
+      # For details checkout https://developers.themoviedb.org/3/getting-started/introduction
+      - TMDB_API_KEY=
+      - SLEEP_INTERVAL=86400
+      - CHANNEL=messaging
+      - NEW_TITLE_OUT=new_title
+      - START_DELAY=0

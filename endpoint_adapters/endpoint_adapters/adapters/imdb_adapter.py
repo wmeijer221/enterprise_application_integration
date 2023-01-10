@@ -4,8 +4,9 @@ from dateutil.parser import parse as parse_date
 import json
 import logging
 import requests
+from uuid import uuid4
 
-from base.canonical_model.review import Review
+from base.canonical_model import Review, Title
 
 from endpoint_adapters.adapters import APIAdapter
 from endpoint_adapters.utils.http_status_code_helper import is_success_code
@@ -17,23 +18,16 @@ class IMDbAdapter(APIAdapter):
     BASE_URL = "https://imdb-api.tprojects.workers.dev"
     TIMEOUT = 5
 
-    def fetch(self):
-        release_ids = self.__fetch_release_ids(self._list_of_titles)
-        logging.debug(
-            "Found %s IMDb IDs for %s titles.",
-            len(release_ids),
-            len(self._list_of_titles),
-        )
-        for title, release_id in zip(self._list_of_titles, release_ids):
-            reviews = self.__fetch_reviews(release_id)
-            if reviews is None:
-                continue
-            self.__publish_reviews(title, reviews)
-
-    def __fetch_release_ids(self, titles: "list[str]") -> "list[str]":
-        """Fetches the IMDb IDs for a list of titles."""
-        titles = [self.__fetch_release_id(title) for title in titles]
-        return [title for title in titles if title is not None]
+    def fetch_title(self, title: Title):
+        release_id = self.__fetch_release_id(title.name)
+        if id is None:
+            logging.warning(f"Failed to load IMDB reviews for {title.name}")
+            return
+        reviews = self.__fetch_reviews(release_id)
+        if reviews is None:
+            logging.warning(f"Failed to load IMDB reviews for {title.name}")
+            return
+        self.__publish_reviews(title, reviews)
 
     def __fetch_release_id(self, title) -> str:
         """Fetches the IMDb ID for a given title."""
@@ -92,17 +86,18 @@ class IMDbAdapter(APIAdapter):
         logging.debug("Found %s reviews for %s", len(reviews), release_id)
         return reviews
 
-    def __publish_reviews(self, title: str, reviews: "list[dict]"):
+    def __publish_reviews(self, title: Title, reviews: "list[dict]"):
         """Publishes the reviews to the message queue."""
         logging.debug("Publishing %s reviews to message queue.", len(reviews))
         for review in reviews:
             timestamp = parse_date(review["date"])
             real_review = Review(
-                title=title,
+                uuid=str(uuid4()),
+                title_id=title.uuid,
                 text=review["content"],
                 source_name="imdb",
                 source_id=review["id"],
-                timestamp=timestamp,
+                timestamp=str(timestamp),
                 reviewer="author",
             )
             self.publish(real_review)

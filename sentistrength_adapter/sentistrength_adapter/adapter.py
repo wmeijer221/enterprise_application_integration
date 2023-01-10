@@ -1,32 +1,41 @@
 import nltk
+from os import getenv
 
-from sentistrength_adapter._version import VERSION
 from base.canonical_model.review import Review
 from base.canonical_model.review_sentiment import ReviewSentiment
-from base.messaging import QueuePublisher, QueueSubscriber
-from base.messaging.channel_message import ChannelMessage
+from base.channel_messaging import ChannelMessage, create_connection, receive_from_pubsub, publish_to_queue
+from sentistrength_adapter._version import NAME, VERSION
 from sentistrength_adapter.wrapper import Sentiment
 from sentistrength_adapter.wrapper import SentistrengthWrapper
 
 
 MESSAGE_TYPE = "sentiment"
 
+CHANNEL_NAME_KEY = "CHANNEL_NAME"
+NEW_REVIEW_IN_KEY = "NEW_REVIEW_IN"
+NEW_SENTIMENT_OUT_KEY = "NEW_SENTIMENT_OUT"
 
 class SentistrengthAdapter():
     """Adapter object that reads messages from channel and processes them through the wrapper."""
 
     def __init__(self, wrapper: SentistrengthWrapper):
         self.wrapper = wrapper
-        self.publisher = QueuePublisher()
-        self.subscriber = QueueSubscriber(
-            message_type=Review, on_message_received=self.on_message_received)
-        self.subscriber.start()
+        channel_name = getenv(CHANNEL_NAME_KEY)
+        create_connection(channel_name)
+        self.new_sentiment_out = getenv(NEW_SENTIMENT_OUT_KEY)
+        new_review_in = getenv(NEW_REVIEW_IN_KEY)
+        receive_from_pubsub(new_review_in, self.on_message_received)
 
     def on_message_received(self, message: ChannelMessage):
         """Listener for new queue publisher messages."""
         sentiment = self.__build_sentiment(message.body)
-        sentiment_message = ChannelMessage(sentiment, MESSAGE_TYPE, VERSION)
-        self.publisher.publish(sentiment_message)
+        sentiment_message = ChannelMessage.channel_message_from(
+            message_type=MESSAGE_TYPE,
+            sender_type=NAME,
+            sender_version=VERSION,
+            body=sentiment
+        )
+        publish_to_queue(sentiment_message, self.new_sentiment_out)
     
     def __build_sentiment(self, review: Review) -> ReviewSentiment:
         """Factory method for review sentiment"""
