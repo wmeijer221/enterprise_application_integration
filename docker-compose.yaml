@@ -36,8 +36,8 @@ services:
     environment:
       - ENDPOINT_TYPE=reddit
       - CHANNEL_NAME=messaging
-      - OUT_QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=3600
+      - NEW_REVIEW_QUEUE=new_review
+      - NEW_TITLE_PUBSUB=new_title
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
       # - REDDIT_CLIENT_ID=
       # - REDDIT_CLIENT_SECRET=
@@ -50,8 +50,8 @@ services:
     environment:
       - ENDPOINT_TYPE=imdb
       - CHANNEL_NAME=messaging
-      - OUT_QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=120
+      - NEW_REVIEW_QUEUE=new_review
+      - NEW_TITLE_PUBSUB=new_title
 
   twitter_endpoint_adapter:
     build: endpoint_adapters
@@ -83,7 +83,8 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      - API_KEY=
+      # - API_KEY=
       - SLEEP_INTERVAL=86400
       - OUT_CHANNEL=messaging
       - OUT_QUEUE=new_title
+      - START_DELAY=5

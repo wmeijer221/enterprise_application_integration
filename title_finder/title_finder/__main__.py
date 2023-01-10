@@ -1,4 +1,6 @@
 import logging 
+from os import getenv
+import time
 
 from base._version import VERSION as BASE_VERSION
 from title_finder._version import VERSION
@@ -17,6 +19,9 @@ logo = f"""
                                     (v{VERSION} - b{BASE_VERSION})                                                   
 """
 logging.info(logo)
+
+delay = int(getenv("START_DELAY"))
+time.sleep(delay)
 
 title_finder = TMDBFinder()
 title_finder.start_collecting()
