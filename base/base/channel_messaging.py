@@ -7,6 +7,7 @@ standard queues and standard publish-subscribe channels..
 
 from dataclasses import dataclass
 import datetime
+import json
 import logging
 import pika
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
@@ -203,7 +204,7 @@ def ensure_pubsub_receiver_exists(pubsub_name: str, exclusive: bool = False):
         queue_name = result.method.queue
         channel.queue_bind(exchange=pubsub_name, queue=queue_name)
         known_pubsub_receivers[pubsub_name] = queue_name
-import json
+
 def __body_to_message(body: str, expected_body_type: type) -> ChannelMessage:
     """
     Converts the body of a network message to a ``ChannelMessage`` object.
