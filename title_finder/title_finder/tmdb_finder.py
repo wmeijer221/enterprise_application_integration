@@ -79,7 +79,7 @@ class TMDBFinder:
 
         data = json.loads(response.text)
         movies = [Title(
-            str(uuid4), 
+            str(uuid4()), 
             self.__get_title(entry), 
             endpoint[0], 
             self.__to_genres(entry)) 

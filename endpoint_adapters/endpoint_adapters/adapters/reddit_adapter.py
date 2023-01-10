@@ -52,20 +52,21 @@ class RedditAdapter(APIAdapter):
             if subreddit.subreddit_type == "public"
         ]
 
-    def fetch(self):
-        for title in self._list_of_titles:
-            logging.debug('Searching for "%s" in subreddits.', title)
-            try:
-                posts = self.__find_posts(title.name)
-            except ResponseException as exception:
-                logging.error(
-                    'Error while searching for "%s" in subreddits: %s.',
-                    title,
-                    exception.response,
-                )
-                continue
-            logging.debug('Found %s posts for "%s" in subreddits.', len(posts), title)
-            self.__publish_posts(title, posts)
+
+    def fetch_title(self, title: Title):
+        logging.debug('Searching for "%s" in subreddits.', title)
+        try:
+            posts = self.__find_posts(title.name)
+        except ResponseException as exception:
+            logging.error(
+                'Error while searching for "%s" in subreddits: %s.',
+                title,
+                exception.response,
+            )
+            return
+        logging.debug('Found %s posts for "%s" in subreddits.', len(posts), title)
+        self.__publish_posts(title, posts)
+
 
     def __find_posts(self, title: str) -> "list[SubredditMessage]":
         subreddits = "+".join(self.relevant_subreddits)

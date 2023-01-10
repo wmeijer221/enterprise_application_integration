@@ -109,7 +109,9 @@ def publish_to_queue(message: ChannelMessage, queue_name: str,
         body=json_message,
     )
 
-def receive_from_queue(queue_name: str, on_message_callback: 'Callable[[ChannelMessage], None]'):
+def receive_from_queue(queue_name: str, 
+                       on_message_callback: 'Callable[[ChannelMessage], None]', 
+                       expected_body_type: type = None):
     """
     Adds ``on_message_callback`` as a listener to messages from ``queue_name``.
     """
@@ -117,11 +119,11 @@ def receive_from_queue(queue_name: str, on_message_callback: 'Callable[[ChannelM
 
     def recv_from_queue(channel, method, properties, body):
         queue_name = method.queue
-        message = __body_to_message(body)
-        callback = queue_listeners[queue_name]
+        callback, expected_type = queue_listeners[queue_name]
+        message = __body_to_message(body, expected_type)
         callback(message)
 
-    queue_listeners[queue_name] = on_message_callback
+    queue_listeners[queue_name] = (on_message_callback, expected_body_type)
     ensure_queue_exists(queue_name)
     channel.basic_consume(
         queue=queue_name,
@@ -153,7 +155,9 @@ def publish_to_pubsub(message: ChannelMessage, pubsub_name: str, exchange_name: 
         body=json_message,
     )
 
-def receive_from_pubsub(pubsub_name: str, on_message_callback: 'Callable[[ChannelMessage], None]'):
+def receive_from_pubsub(pubsub_name: str, 
+                        on_message_callback: 'Callable[[ChannelMessage], None]',
+                        expected_body_type: type = None):
     """
     Creates listener for the ``pubsub_name`` channel, 
     calling ``on_message_callback`` whenever a new message arrives.
@@ -163,14 +167,14 @@ def receive_from_pubsub(pubsub_name: str, on_message_callback: 'Callable[[Channe
     
     def recv_from_pubsub(channel, method, properties, body):
         exchange_name = method.exchange
-        message = __body_to_message(body)
-        callback = pubsub_listeners[exchange_name]
+        callback, expected_type = pubsub_listeners[exchange_name]
+        message = __body_to_message(body, expected_type)
         callback(message)
 
     ensure_pubsub_exists(pubsub_name)
     ensure_pubsub_receiver_exists(pubsub_name)
     queue_name = known_pubsub_receivers[pubsub_name]
-    pubsub_listeners[pubsub_name] = on_message_callback
+    pubsub_listeners[pubsub_name] = (on_message_callback, expected_body_type)
     channel.basic_consume(
         queue=queue_name,
         on_message_callback=recv_from_pubsub,
@@ -199,13 +203,21 @@ def ensure_pubsub_receiver_exists(pubsub_name: str, exclusive: bool = False):
         queue_name = result.method.queue
         channel.queue_bind(exchange=pubsub_name, queue=queue_name)
         known_pubsub_receivers[pubsub_name] = queue_name
-
-def __body_to_message(body: str) -> ChannelMessage:
+import json
+def __body_to_message(body: str, expected_body_type: type) -> ChannelMessage:
     """
     Converts the body of a network message to a ``ChannelMessage`` object.
     """
 
     json_string = body.decode('utf-8')
-    message = str_to_object(json_string)
+
+    if expected_body_type == None:
+        return str_to_object(json_string)
+
+    # Loads the data with the expected body type. 
+    json_dict = json.loads(json_string)
+    body_object = expected_body_type(**json_dict["body"])
+    json_dict["body"] = body_object
+    message = ChannelMessage(**json_dict)
     return message
     

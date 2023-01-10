@@ -19,15 +19,7 @@ services:
     depends_on:
       - messaging
 
-  # test_endpoint_adapter:
-  #   build: endpoint_adapters
-  #   depends_on:
-  #     - messaging
-  #   environment:
-  #     - ENDPOINT_TYPE=test
-  #     - CHANNEL_NAME=messaging
-  #     - NEW_REVIEW_OUT=new_review
-  #     - NEW_TITLE_IN=new_title
+      # - QUERY_INTERVAL=3600
 
   reddit_endpoint_adapter:
     build: endpoint_adapters
@@ -38,6 +30,7 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_OUT=new_review
       - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
       # - REDDIT_CLIENT_ID=
       # - REDDIT_CLIENT_SECRET=
@@ -62,7 +55,7 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_OUT=new_review
       - NEW_TITLE_IN=new_title
-      - UPDATE_INTERVAL=3600
+      - QUERY_INTERVAL=3600
       - TWITTER_BEARER_TOKEN=
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
@@ -89,4 +82,4 @@ services:
       - SLEEP_INTERVAL=86400
       - CHANNEL=messaging
       - NEW_TITLE_OUT=new_title
-      - START_DELAY=5
+      - START_DELAY=0

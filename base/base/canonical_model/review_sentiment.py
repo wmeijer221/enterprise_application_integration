@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-@dataclass(frozen=True)
+@dataclass
 class ReviewSentiment:
     review_uuid: str
     positivity: int = 0

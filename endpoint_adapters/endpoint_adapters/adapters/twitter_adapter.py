@@ -4,7 +4,7 @@ from os import getenv
 import requests
 from uuid import uuid4
 
-from base.canonical_model.review import Review, Title
+from base.canonical_model import Review, Title
 
 from endpoint_adapters.adapters import APIAdapter
 
@@ -24,25 +24,24 @@ def bearer_oauth(r):
 class TestAdapter(APIAdapter):
     """Adapter for Twitter."""
 
-    def fetch(self):
-        for title in self._list_of_titles:
-            logging.debug('Searching for "%s" in twitter.', title)
-            try:
-                # Fetch tweets for title.
-                posts = self.__find_posts(title.name)
+    def fetch_title(self, title: Title):
+        logging.debug('Searching for "%s" in twitter.', title)
+        try:
+            # Fetch tweets for title.
+            posts = self.__find_posts(title.name)
 
-                print(posts[0])
-            except Exception as exception:
-                logging.error(
-                    'Error while searching for "%s" in tweets: %s.',
-                    title,
-                    exception.response,
-                )
-                continue
+            print(posts[0])
+        except Exception as exception:
+            logging.error(
+                'Error while searching for "%s" in tweets: %s.',
+                title,
+                exception.response,
+            )
+            return
 
-            logging.debug('Found %s tweets for "%s".', len(posts), title)
+        logging.debug('Found %s tweets for "%s".', len(posts), title)
 
-            self.__publish_posts(title, posts)
+        self.__publish_posts(title, posts)
 
     def __find_posts(self, title: str) -> "list[TwitterMessage]":
         response = requests.get(
