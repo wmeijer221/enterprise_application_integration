@@ -12,7 +12,7 @@ from base.channel_messaging import ChannelMessage, create_connection, publish_to
 
 from title_finder._version import NAME, VERSION
 
-API_KEY_KEY = "API_KEY"
+API_KEY_KEY = "TMDB_API_KEY"
 SLEEP_INTERVAL_KEY = "SLEEP_INTERVAL"
 TIMEOUT = 5
 CHANNEL_KEY = "CHANNEL"

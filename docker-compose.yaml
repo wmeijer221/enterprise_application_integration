@@ -84,7 +84,8 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      # - API_KEY=
+      # For details checkout https://developers.themoviedb.org/3/getting-started/introduction
+      - TMDB_API_KEY=
       - SLEEP_INTERVAL=86400
       - CHANNEL=messaging
       - NEW_TITLE_OUT=new_title
