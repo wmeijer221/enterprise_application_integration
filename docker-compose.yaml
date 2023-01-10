@@ -26,8 +26,8 @@ services:
   #   environment:
   #     - ENDPOINT_TYPE=test
   #     - CHANNEL_NAME=messaging
-  #     - QUEUE_NAME=new_review
-  #     - UPDATE_INTERVAL=10
+  #     - NEW_REVIEW_QUEUE=new_review
+  #     - NEW_TITLE_PUBSUB=new_title
 
   reddit_endpoint_adapter:
     build: endpoint_adapters

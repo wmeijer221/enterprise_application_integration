@@ -4,12 +4,14 @@ standard queues and standard publish-subscribe channels..
 """
 
 from dataclasses import dataclass
+import datetime
 import logging
 import pika
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 from socket import gaierror
 import time
 from typing import Callable
+from uuid import uuid1, uuid4
 
 from base.utils.json_helper import to_json, str_to_object
 
@@ -26,6 +28,22 @@ class ChannelMessage:
     sender_type: str
     sender_version: str
     body: object
+
+    @classmethod
+    def channel_message_from(cls, message_type: str, sender_type: str, sender_version: str, body: object) -> 'ChannelMessage':
+        """
+        Factory method for constructing a ``ChannelMessage`` using default settings for IDs and datetime.
+        """
+
+        return ChannelMessage(
+            str(uuid1()), 
+            str(uuid4()), 
+            message_type, 
+            str(datetime.datetime.now()), 
+            sender_type, 
+            sender_version, 
+            body
+        )
 
 
 connection: BlockingConnection = None
@@ -94,8 +112,11 @@ def receive_from_queue(queue_name: str, on_message_callback: 'Callable[[ChannelM
     """
     global queue_listeners, channel
 
-    def recv_from_queue(**args):
-        return __handle_message(queue_listeners, **args)
+    def recv_from_queue(channel, method, properties, body):
+        queue_name = method.queue
+        message = __body_to_message(body)
+        callback = queue_listeners[queue_name]
+        callback(message)
 
     queue_listeners[queue_name] = on_message_callback
     ensure_queue_exists(queue_name)
@@ -135,10 +156,13 @@ def receive_from_pubsub(pubsub_name: str, on_message_callback: 'Callable[[Channe
     calling ``on_message_callback`` whenever a new message arrives.
     """
 
-    global known_pubsub_receivers
+    global known_pubsub_receivers, pubsub_listeners
     
-    def recv_from_pubsub(**args):
-        return __handle_message(pubsub_listeners, **args)
+    def recv_from_pubsub(channel, method, properties, body):
+        exchange_name = method.exchange
+        message = __body_to_message(body)
+        callback = pubsub_listeners[exchange_name]
+        callback(message)
 
     ensure_pubsub_exists(pubsub_name)
     ensure_pubsub_receiver_exists(pubsub_name)
@@ -149,6 +173,8 @@ def receive_from_pubsub(pubsub_name: str, on_message_callback: 'Callable[[Channe
         on_message_callback=recv_from_pubsub,
         auto_ack=True
     )
+
+    channel.start_consuming()
 
 def ensure_pubsub_exists(pubsub_name: str, exchange_type: str = "fanout"):
     """
@@ -171,13 +197,12 @@ def ensure_pubsub_receiver_exists(pubsub_name: str, exclusive: bool = False):
         channel.queue_bind(exchange=pubsub_name, queue=queue_name)
         known_pubsub_receivers[pubsub_name] = queue_name
 
-def __handle_message(queue_to_callback: dict, channel: str, method, properties, body: str):
+def __body_to_message(body: str) -> ChannelMessage:
     """
-    Decodes message and passes it to listener.
+    Converts the body of a network message to a ``ChannelMessage`` object.
     """
 
     json_string = body.decode('utf-8')
     message = str_to_object(json_string)
-    logging.debug(f"Received message: {message.uuid}.")
-    on_message_callback = queue_to_callback[channel]
-    on_message_callback(message)
+    return message
+    

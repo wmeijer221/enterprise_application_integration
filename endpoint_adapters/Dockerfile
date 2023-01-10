@@ -3,6 +3,7 @@
 # Setting up Python.
 FROM sentiment_pipeline_base:latest
 WORKDIR /app
+ENV PYTHONPATH "/app/base:/app/endpoint_adapters"
 
 # Installs python dependencies etc.
 COPY requirements.txt requirements.txt
