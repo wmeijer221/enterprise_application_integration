@@ -18,6 +18,9 @@ services:
     build: storage_service
     depends_on:
       - messaging
+    environment:
+      - NEW_REVIEW_IN=new_review
+      - NEW_SENTIMENT_IN=new_sentiment
 
   # test_endpoint_adapter:
   #   build: endpoint_adapters
