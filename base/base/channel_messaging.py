@@ -9,6 +9,7 @@ from dataclasses import dataclass
 import datetime
 import json
 import logging
+import os
 import pika
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 from socket import gaierror
@@ -72,12 +73,14 @@ def create_connection(channel_name: str, stop_if_existing: bool = True, max_retr
     if stop_if_existing and __connection_is_present():
         return
 
-    for tries in range(1, max_retries + 1):
+    for tries in range(max_retries):
         try:
             connection = pika.BlockingConnection(
                 pika.ConnectionParameters(host=channel_name)
             )
             channel = connection.channel()
+
+            break
         except (gaierror, pika.exceptions.AMQPConnectionError):
             logging.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.",
                             channel_name, tries, max_retries, timeout)

@@ -6,8 +6,8 @@ services:
     volumes:
       - ./mongo/data-mount:/data/db # Persist data through mounted volume
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongo-user
-      - MONGO_INITDB_ROOT_PASSWORD=mongo-pass
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
 
   messaging:
     image: rabbitmq:3.11-management
@@ -18,6 +18,14 @@ services:
     build: storage_service
     depends_on:
       - messaging
+    environment:
+      - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_DATABASE=${MONGO_DB_DATABASE}
+      - MONGO_DB_AUTHSOURCE=${MONGO_DB_AUTHSOURCE}
 
   # test_endpoint_adapter:
   #   build: endpoint_adapters
@@ -41,9 +49,9 @@ services:
       - NEW_TITLE_IN=new_title
       - QUERY_INTERVAL=3600
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
-      # - REDDIT_CLIENT_ID=
-      # - REDDIT_CLIENT_SECRET=
-      # - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
 
   imdb_endpoint_adapter:
     build: endpoint_adapters
@@ -66,11 +74,11 @@ services:
       - NEW_REVIEW_OUT=new_review
       - NEW_TITLE_IN=new_title
       - QUERY_INTERVAL=3600
-      - TWITTER_BEARER_TOKEN=
+      - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
         - ./:/app:cached
-        
+
   sentistrength_adapter:
     build: sentistrength_adapter
     depends_on:
@@ -87,9 +95,14 @@ services:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      # For details checkout https://developers.themoviedb.org/3/getting-started/introduction
-      - TMDB_API_KEY=
+      - TMDB_API_KEY=${TMDB_API_KEY}
       - SLEEP_INTERVAL=86400
       - CHANNEL=messaging
       - NEW_TITLE_OUT=new_title
       - START_DELAY=0
+
+  frontend:
+    build: frontend
+    ports:
+      - 8080:8080
+    command: /bin/sh -c "while sleep 1000; do :; done"

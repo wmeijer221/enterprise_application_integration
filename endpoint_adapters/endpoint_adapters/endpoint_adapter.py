@@ -13,7 +13,6 @@ CHANNEL_NAME_KEY = "CHANNEL_NAME"
 NEW_REVIEW_OUT_KEY = "NEW_REVIEW_OUT"
 REVIEW_MESSAGE_TYPE = "review"
 
-
 class EndpointAdapter:
     def __init__(self):
         channel_name = getenv(CHANNEL_NAME_KEY)
