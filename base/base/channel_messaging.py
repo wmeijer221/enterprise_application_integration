@@ -83,7 +83,7 @@ def create_connection(channel_name: str, stop_if_existing: bool = True, max_retr
             break
         except (gaierror, pika.exceptions.AMQPConnectionError):
             logging.error("Could not connect with channel %s for the %s/%s time. Retrying in %s seconds.",
-                            channel_name, tries, max_retries, timeout)
+                            channel_name, tries + 1, max_retries, timeout)
             if tries >= max_retries:
                 raise
             time.sleep(timeout)
