@@ -27,6 +27,7 @@ services:
     depends_on:
       - messaging
     environment:
+      - NEW_TITLE_IN=new_title
       - NEW_REVIEW_IN=new_review
       - NEW_SENTIMENT_IN=new_sentiment
       - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
