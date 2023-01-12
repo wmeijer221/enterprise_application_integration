@@ -29,13 +29,11 @@ class TestAdapter(APIAdapter):
         try:
             # Fetch tweets for title.
             posts = self.__find_posts(title.name)
-
-            print(posts[0])
         except Exception as exception:
             logging.error(
                 'Error while searching for "%s" in tweets: %s.',
                 title,
-                exception.response,
+                exception,
             )
             return
 

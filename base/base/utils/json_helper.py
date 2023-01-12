@@ -12,4 +12,3 @@ def str_to_object(json_object: str) -> object:
 def _json_object_hook(data: dict) -> object: 
     result = namedtuple('X', data.keys())(*data.values())
     return result
-    
