@@ -7,7 +7,7 @@ from base._version import VERSION as BASE_VERSION
 from endpoint_adapters._version import VERSION
 from endpoint_adapters.endpoint_adapter import EndpointAdapter
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 title = f"""
   _____           _             _       _        _       _             _            
