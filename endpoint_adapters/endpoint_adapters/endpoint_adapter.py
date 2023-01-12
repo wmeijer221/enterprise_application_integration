@@ -2,7 +2,7 @@ from os import getenv
 import logging
 
 from base.canonical_model.review import Review
-from base.channel_messaging import ChannelMessage, create_connection, publish_to_pubsub
+from base.channel_messaging import ChannelMessage, create_connection, publish_to_pubsub, publish_to_queue
 from endpoint_adapters._version import NAME, VERSION
 from endpoint_adapters.adapters import APIAdapter, get_adapter_of_type
 from endpoint_adapters.title_broker import TitleBroker
@@ -30,6 +30,7 @@ class EndpointAdapter:
             sender_version=VERSION,
             body=review)
         publish_to_pubsub(message, self.queue_name)
+        publish_to_queue(message, self.queue_name)
 
     def __build_api_adapter(self) -> "tuple[APIAdapter, str]":
         """

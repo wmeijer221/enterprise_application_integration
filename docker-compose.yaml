@@ -27,6 +27,8 @@ services:
     depends_on:
       - messaging
     environment:
+      - NEW_REVIEW_IN=new_review
+      - NEW_SENTIMENT_IN=new_sentiment
       - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
       - MONGO_DB_HOST=${MONGO_DB_HOST}
       - MONGO_DB_PORT=${MONGO_DB_PORT}
@@ -34,6 +36,7 @@ services:
       - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
       - MONGO_DB_DATABASE=${MONGO_DB_DATABASE}
       - MONGO_DB_AUTHSOURCE=${MONGO_DB_AUTHSOURCE}
+      
 
   # test_endpoint_adapter:
   #   build: endpoint_adapters

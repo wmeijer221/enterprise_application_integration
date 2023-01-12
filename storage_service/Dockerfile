@@ -1,13 +1,15 @@
 # syntax=docker/dockerfile:1
 
-# Setting up Python.
-FROM python:3.8-slim-buster
+# Setting up base image.
+FROM sentiment_pipeline_base:latest
 WORKDIR /app
+ENV PYTHONPATH "/app/base:/app/storage_service"
 
 # Installs python dependencies etc.
-COPY requirements.txt requirements.txt
+COPY requirements.txt /app/
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
-COPY . .
 
-CMD ["python3", "-m", "storage_service"]
+COPY . /app/
+
+CMD ["python", "-m", "storage_service"]

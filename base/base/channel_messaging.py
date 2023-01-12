@@ -122,18 +122,27 @@ def receive_from_queue(queue_name: str,
     global queue_listeners, channel
 
     def recv_from_queue(channel, method, properties, body):
-        queue_name = method.queue
+        queue_name = method.routing_key
+        delivery_tag = method.delivery_tag
+        # logging.debug(f'Recv from exchange {exchange_name}')
+        # logging.info(method)
+        # logging.debug(properties)
         callback, expected_type = queue_listeners[queue_name]
         message = __body_to_message(body, expected_type)
         callback(message)
+        channel.basic_ack(delivery_tag)
 
-    queue_listeners[queue_name] = (on_message_callback, expected_body_type)
     ensure_queue_exists(queue_name)
-    channel.basic_consume(
+    consumer_tag = channel.basic_consume(
         queue=queue_name,
         on_message_callback=recv_from_queue,
-        auto_ack=True,
+        # auto_ack=True,
     )
+    queue_listeners[queue_name] = (on_message_callback, expected_body_type)
+
+def start_consuming():
+    global channel
+    channel.start_consuming()
 
 def ensure_queue_exists(queue_name: str):
     """
