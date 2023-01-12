@@ -6,18 +6,37 @@ services:
     volumes:
       - ./mongo/data-mount:/data/db # Persist data through mounted volume
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongo-user
-      - MONGO_INITDB_ROOT_PASSWORD=mongo-pass
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
 
   messaging:
     image: rabbitmq:3.11-management
     ports:
       - 8081:15672
+    expose:
+      - 15692
+    volumes:
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json
+
 
   storage_service:
     build: storage_service
     depends_on:
       - messaging
+    environment:
+      - NEW_REVIEW_IN=new_review
+      - NEW_SENTIMENT_IN=new_sentiment
+      - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_DATABASE=${MONGO_DB_DATABASE}
+      - MONGO_DB_AUTHSOURCE=${MONGO_DB_AUTHSOURCE}
+      
 
   rest_api:
     build: rest_api
@@ -37,8 +56,9 @@ services:
   #   environment:
   #     - ENDPOINT_TYPE=test
   #     - CHANNEL_NAME=messaging
-  #     - QUEUE_NAME=new_review
-  #     - UPDATE_INTERVAL=10
+  #     - NEW_REVIEW_OUT=new_review
+  #     - NEW_TITLE_IN=new_title
+  #     - QUERY_INTERVAL=3600
 
   reddit_endpoint_adapter:
     build: endpoint_adapters
@@ -47,12 +67,13 @@ services:
     environment:
       - ENDPOINT_TYPE=reddit
       - CHANNEL_NAME=messaging
-      - QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=3600
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
       # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
-      # - REDDIT_CLIENT_ID=
-      # - REDDIT_CLIENT_SECRET=
-      # - REDDIT_USER_AGENT=eai:reddit_adapter:0.1 (by /u/willem88836)
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
 
   imdb_endpoint_adapter:
     build: endpoint_adapters
@@ -61,29 +82,111 @@ services:
     environment:
       - ENDPOINT_TYPE=imdb
       - CHANNEL_NAME=messaging
-      - QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=120
+      - NEW_REVIEW_OUT=new_review
+      - NEW_TITLE_IN=new_title
+      - QUERY_INTERVAL=3600
 
-  twitter_endpoint_adapter:
-    build: endpoint_adapters
-    depends_on:
-      - messaging
-    environment:
-      - ENDPOINT_TYPE=twitter
-      - CHANNEL_NAME=messaging
-      - QUEUE_NAME=new_review
-      - UPDATE_INTERVAL=3600
-      - TWITTER_BEARER_TOKEN=
-    command: /bin/sh -c "while sleep 1000; do :; done"
-    volumes:
-        - ./:/app:cached
-        
+  # twitter_endpoint_adapter:
+  #   build: endpoint_adapters
+  #   depends_on:
+  #     - messaging
+  #   environment:
+  #     - ENDPOINT_TYPE=twitter
+  #     - CHANNEL_NAME=messaging
+  #     - NEW_REVIEW_OUT=new_review
+  #     - NEW_TITLE_IN=new_title
+  #     - QUERY_INTERVAL=3600
+  #     - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
+  #   command: /bin/sh -c "while sleep 1000; do :; done"
+  #   volumes:
+  #       - ./:/app:cached
+
   sentistrength_adapter:
     build: sentistrength_adapter
     depends_on:
       - messaging
     environment:
       - CHANNEL_NAME=messaging
-      - IN_QUEUE_NAME=new_review_sentistrength
-      - OUT_QUEUE_NAME=new_sentiment
+      - NEW_REVIEW_IN=new_review
+      - NEW_SENTIMENT_OUT=new_sentiment
       - CLASSIFICATION_TYPE=scale
+
+  title_finder:
+    build: title_finder
+    depends_on: 
+      - messaging
+    environment:
+      - CHANNEL_NAME=messaging
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - SLEEP_INTERVAL=86400
+      - CHANNEL=messaging
+      - NEW_TITLE_OUT=new_title
+      - START_DELAY=0
+
+  frontend:
+    build: frontend
+    ports:
+      - 8080:8080
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+
+  # Monitoring
+  grafana:
+    image: grafana/grafana:8.3.4
+    ports:
+      - "3000:3000"
+    volumes:
+      - rabbitmq-prometheus_grafana:/var/lib/grafana
+      - ./grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/rabbitmq.yaml
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yaml
+      - ./grafana/dashboards:/dashboards
+    environment:
+      GF_INSTALL_PLUGINS: "flant-statusmap-panel,grafana-piechart-panel"
+  prometheus:
+    image: prom/prometheus:v2.28.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - rabbitmq-prometheus_prometheus:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # Node-exporter is a prometheus exporter for host metrics
+  node-exporter:
+    expose:
+      - 9100
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    image: prom/node-exporter:v1.2.0
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+  # Cadvisor is a prometheus exporter for docker containers
+  cadvisor:
+    image: google/cadvisor:v0.33.0
+    expose:
+      - 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.36.0
+    ports:
+      - 9216:9216
+    expose:
+      - 9216
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_DB_USERNAME}:${MONGO_DB_PASSWORD}@${MONGO_DB_HOST}:${MONGO_DB_PORT}/${MONGO_DB_DATABASE}?authSource=${MONGO_DB_AUTHSOURCE}
+    
+
+volumes:
+  rabbitmq-prometheus_prometheus:
+  rabbitmq-prometheus_grafana:
