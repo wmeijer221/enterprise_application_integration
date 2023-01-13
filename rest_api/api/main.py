@@ -1,7 +1,7 @@
 import json
 from fastapi import FastAPI, Depends, WebSocket, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from mongo_db import MongoDB
+from base.mongo_db import MongoDB
 from bson import json_util
 from dotenv import load_dotenv
 from os import getenv
@@ -45,22 +45,56 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """
-    Get the online status of the web API
+    Returns the online status of the API
     """
     return {"online": True}
 
-@app.get("/reviews")
-async def getAllReviews():
+@app.get("/titles")
+async def getAllTitles():
     """
-    Get all reviews from storage
+    Returns all titles
     """
-    data = [review for review in mongo.getDB().reviews.find({})]
+    data = [title for title in mongo.getDB().titles.find({})]
     return json.loads(json_util.dumps(data))
 
-@app.get("/reviews/{title}")
-async def getReviewsByTitle(title):
+@app.get("/titles/search/{query}")
+async def getTitlesBySearch(query):
     """
-    Get all reviews from storage
+    Returns results of title search
     """
-    data = [review for review in mongo.getDB().reviews.find({"title": title})]
+    data = [result for result in mongo.getDB().titles.find({"name": query})]
+    return json.loads(json_util.dumps(data))
+
+@app.get("/titles/uuid/{title_uuid}")
+async def getTitleById(title_uuid):
+    """
+    Returns a specifc title based on the provided title uuid
+    """
+    data = [title for title in mongo.getDB().titles.find({"uuid": title_uuid})]
+    return json.loads(json_util.dumps(data))
+
+@app.get("/titles/uuid/{title_uuid}/reviews")
+async def getReviewsByTitleId(title_uuid):
+    """
+    Returns all reviews for a specific title based on the provided title uuid
+    """
+    data = [review for review in mongo.getDB().reviews.find({"title_id": title_uuid})]
+    return json.loads(json_util.dumps(data))
+
+@app.get("/titles/uuid/{title_uuid}/reviews/sentiment")
+async def getSentimentByTitleId(title_uuid):
+    """
+    Returns all sentiments for a specific title based on the provided title uuid
+    """
+    reviews = [review for review in mongo.getDB().reviews.find({"title_id": title_uuid})]
+    reviews_json = json.loads(json_util.dumps(reviews))
+    data = [{"review_uuid": review['uuid'], "sentiment": review['sentiment']} for review in reviews_json if 'sentiment' in review.keys()]
+    return data
+
+@app.get("/reviews/all")
+async def getAllReviews():
+    """
+    Returns all reviews
+    """
+    data = [review for review in mongo.getDB().reviews.find({})]
     return json.loads(json_util.dumps(data))

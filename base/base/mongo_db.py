@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from pymongo import MongoClient
 from time import sleep
 import sys

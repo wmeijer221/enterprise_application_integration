@@ -1,16 +1,14 @@
 # syntax=docker/dockerfile:1
 
-# Setting up Python.
-FROM python:3.8-slim-buster
+# Setting up base image.
+FROM sentiment_pipeline_base:latest
 WORKDIR /app
+ENV PYTHONPATH "/app/base:/app/api"
 
 # Installs python dependencies etc.
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
-COPY . .
+COPY . /app/
 
-WORKDIR /app/api
-
-# CMD ["python3", "-m", "api"]
 ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

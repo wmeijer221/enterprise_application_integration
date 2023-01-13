@@ -8,7 +8,7 @@ from uuid import uuid4, uuid1
 
 from base.utils.http_status_code_helper import is_success_code
 from base.canonical_model import Title
-from base.channel_messaging import ChannelMessage, create_connection, publish_to_pubsub
+from base.channel_messaging import ChannelMessage, create_connection, publish_to_queue, publish_to_pubsub
 
 from title_finder._version import NAME, VERSION
 
@@ -172,4 +172,5 @@ class TMDBFinder:
                 str(uuid1()), str(uuid4()), "title",
                 str(datetime.datetime.now()),
                 NAME, VERSION, title)
+            publish_to_queue(message, queue_name)
             publish_to_pubsub(message, queue_name)
