@@ -3,7 +3,7 @@
     {
       "name": "guest",
       "password": "guest",
-      "tags": "guest"
+      "tags": "administrator"
     }
   ],
   "vhosts": [

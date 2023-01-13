@@ -27,6 +27,7 @@ services:
     depends_on:
       - messaging
     environment:
+      - NEW_TITLE_IN=new_title
       - NEW_REVIEW_IN=new_review
       - NEW_SENTIMENT_IN=new_sentiment
       - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
@@ -112,12 +113,25 @@ services:
       - NEW_TITLE_OUT=new_title
       - START_DELAY=0
 
+
+  # Streaming API
+  streaming_api:
+    build: streaming_api
+    depends_on:
+      - messaging
+    ports:
+      - 8082:8082
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ./:/app:cached
+
   frontend:
     build: frontend
     ports:
-      - 8080:8080
+      - 5173:5173
     command: /bin/sh -c "while sleep 1000; do :; done"
-
+    volumes:
+      - ./:/app:cached
 
   # Monitoring
   grafana:
