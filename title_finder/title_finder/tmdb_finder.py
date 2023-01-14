@@ -173,4 +173,3 @@ class TMDBFinder:
                 str(datetime.datetime.now()),
                 NAME, VERSION, title)
             publish_to_queue(message, queue_name)
-            publish_to_pubsub(message, queue_name)
