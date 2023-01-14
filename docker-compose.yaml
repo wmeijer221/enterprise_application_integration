@@ -53,6 +53,13 @@ services:
       - mongodb
     volumes:
       - ./rest_api/api/:/app/api/
+    environment:
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_DATABASE=${MONGO_DB_DATABASE}
+      - MONGO_DB_AUTHSOURCE=${MONGO_DB_AUTHSOURCE}
 
   # test_endpoint_adapter:
   #   build: endpoint_adapters
