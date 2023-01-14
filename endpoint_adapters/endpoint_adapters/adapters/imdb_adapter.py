@@ -98,6 +98,6 @@ class IMDbAdapter(APIAdapter):
                 source_name="imdb",
                 source_id=review["id"],
                 timestamp=str(timestamp),
-                reviewer="author",
+                reviewer=review["author"],
             )
             self.publish(real_review)

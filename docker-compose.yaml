@@ -119,6 +119,9 @@ services:
     build: streaming_api
     depends_on:
       - messaging
+    environment:
+      - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
+      - NEW_SENTIMENT_OUT=new_sentiment
     ports:
       - 8082:8082
     command: /bin/sh -c "while sleep 1000; do :; done"
