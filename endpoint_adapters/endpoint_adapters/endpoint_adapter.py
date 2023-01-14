@@ -29,7 +29,6 @@ class EndpointAdapter:
             message_type=REVIEW_MESSAGE_TYPE,
             sender_version=VERSION,
             body=review)
-        publish_to_pubsub(message, self.queue_name)
         publish_to_queue(message, self.queue_name)
 
     def __build_api_adapter(self) -> "tuple[APIAdapter, str]":

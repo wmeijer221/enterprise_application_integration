@@ -2,6 +2,4 @@
 
 FROM mongo:6.0
 
-COPY ./scripts /home/scripts
-
-RUN chmod +x -R /home/scripts/
+COPY ./scripts/init_indexes.js /docker-entrypoint-initdb.d/init_indexes.js
