@@ -4,7 +4,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./mongo/data-mount:/data/db # Persist data through mounted volume
+      - mongo:/data/db # Persist data through mounted volume
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -207,3 +207,4 @@ services:
 volumes:
   rabbitmq-prometheus_prometheus:
   rabbitmq-prometheus_grafana:
+  mongo:
