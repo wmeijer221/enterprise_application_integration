@@ -27,9 +27,22 @@ class StreamingApi:
     async def start_queue_consumer(self):
         logging.info("Starting queue consumer")
         # For the Streaming API, we do not use the base image because we need the asynchronous version of pika
-        connection = await aio_pika.connect_robust(
-            host=self.rabbit_mq_host, login="guest", password="guest"
-        )
+
+        max_tries = 5
+
+        connection = None
+
+        for i in range(max_tries):
+            try:
+                connection = await aio_pika.connect_robust(
+                    host=self.rabbit_mq_host,
+                    login="guest",
+                    password="guest",
+                )
+                break
+            except Exception as e:
+                logging.warning(f"Could not connect to rabbitmq: {e}")
+                await asyncio.sleep(5)
 
         channel = await connection.channel()
 
