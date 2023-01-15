@@ -4,7 +4,7 @@ import time
 import logging
 import datetime
 import json
-from uuid import uuid4, uuid1
+from uuid import uuid4, uuid1, uuid3, NAMESPACE_OID
 
 from base.utils.http_status_code_helper import is_success_code
 from base.canonical_model import Title
@@ -82,13 +82,13 @@ class TMDBFinder:
         for entry in data["results"]:
             genres = self.__to_genres(entry)
             cast, crew = self.__get_cast_and_crew(endpoint[0], entry)
+            title_name = self.__get_title(entry)
             new_title = Title(
-                str(uuid4()),
-                self.__get_title(entry),
+                str(uuid3(NAMESPACE_OID, title_name)),
+                title_name,
                 endpoint[0],
                 genres, cast, crew)
             movies.append(new_title)
-
         return movies
 
     def __get_title(self, entry: dict) -> str:

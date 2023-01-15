@@ -4,7 +4,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./mongo/data-mount:/data/db # Persist data through mounted volume
+      - mongo:/data/db # Persist data through mounted volume
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -36,6 +36,7 @@ services:
       - NEW_ACTOR_OUT=new_actor
       - NEW_REVIEW_OUT=new_review
       - NEW_SENTIMENT_OUT=new_sentiment
+      - REQ_TITLE_IN=req_title
       - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
       - MONGO_DB_HOST=${MONGO_DB_HOST}
       - MONGO_DB_PORT=${MONGO_DB_PORT}
@@ -72,6 +73,7 @@ services:
   #     - CHANNEL_NAME=messaging
   #     - NEW_REVIEW_OUT=new_review
   #     - NEW_TITLE_IN=new_title
+  #     - REQ_TITLE_OUT=req_title
   #     - QUERY_INTERVAL=3600
 
   reddit_endpoint_adapter:
@@ -83,11 +85,11 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_OUT=ingress_review
       - NEW_TITLE_IN=new_title
-      - QUERY_INTERVAL=3600
-      # Get your client ID / Secret here: https://ssl.reddit.com/prefs/apps/
+      - REQ_TITLE_OUT=req_title
       - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
       - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
       - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
+      - QUERY_INTERVAL=3600
 
   imdb_endpoint_adapter:
     build: endpoint_adapters
@@ -98,6 +100,7 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_OUT=ingress_review
       - NEW_TITLE_IN=new_title
+      - REQ_TITLE_OUT=req_title
       - QUERY_INTERVAL=3600
 
   twitter_endpoint_adapter:
@@ -109,8 +112,9 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_OUT=ingress_review
       - NEW_TITLE_IN=new_title
-      - QUERY_INTERVAL=3600
+      - REQ_TITLE_OUT=req_title
       - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
+      - QUERY_INTERVAL=3600
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
         - ./:/app:cached
@@ -123,6 +127,7 @@ services:
       - CHANNEL_NAME=messaging
       - NEW_REVIEW_IN=new_review
       - NEW_SENTIMENT_OUT=ingress_sentiment
+      - REQ_TITLE_OUT=req_title
       - CLASSIFICATION_TYPE=scale
 
   title_finder:
@@ -212,3 +217,4 @@ services:
 volumes:
   rabbitmq-prometheus_prometheus:
   rabbitmq-prometheus_grafana:
+  mongo:
