@@ -65,7 +65,6 @@ class IMDbAdapter(APIAdapter):
         ]
         # Returns exact match
         for release in entries:
-            logging.critical(release)
             if release["title"] == title:
                 release_id = release["id"]
                 logging.debug("Found IMDb IDs for %s: %s.", title, release_id)
