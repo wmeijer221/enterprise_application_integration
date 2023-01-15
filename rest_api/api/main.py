@@ -27,7 +27,14 @@ mongo_db_password = getenv(MONGO_DB_PASSWORD_KEY)
 mongo_db_database = getenv(MONGO_DB_DATABASE_KEY)
 mongo_db_authsource = getenv(MONGO_DB_AUTHSOURCE_KEY)
 
-mongo = MongoDB(mongo_db_host, mongo_db_port, mongo_db_username, mongo_db_password, mongo_db_database, mongo_db_authsource)
+mongo = MongoDB(
+    mongo_db_host,
+    mongo_db_port,
+    mongo_db_username,
+    mongo_db_password,
+    mongo_db_database,
+    mongo_db_authsource,
+)
 
 app = FastAPI()
 
@@ -42,12 +49,14 @@ app.add_middleware(
 
 # Define API endpoints
 
+
 @app.get("/")
 async def root():
     """
     Returns the online status of the API
     """
     return {"online": True}
+
 
 @app.get("/titles/search")
 async def getTitlesBySearch(query: str = None):
@@ -61,24 +70,27 @@ async def getTitlesBySearch(query: str = None):
         # Only english alphanumeric characters
         filter_query = {"name": {"$regex": "^[a-zA-Z0-9]*$", "$options": "i"}}
 
-
     data = [result for result in mongo.getDB().titles.find(filter_query).limit(10)]
     return json.loads(json_util.dumps(data))
+
 
 @app.get("/title")
 async def getTitleById(id: str = None):
     """
-    Returns title results of search by name
+    Returns title details by id
     """
     filter_query = {}
 
     if not id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No id provided")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No id provided"
+        )
 
     filter_query = {"uuid": id}
 
     data = mongo.getDB().titles.find_one(filter_query)
     return json.loads(json_util.dumps(data))
+
 
 @app.get("/titles/sentiment/")
 async def getSentimentByTitleId(title_id: str = None):
@@ -86,12 +98,7 @@ async def getSentimentByTitleId(title_id: str = None):
     Returns all sentiments for a specific title based on the provided title_id
     """
     pipeline = [
-        {
-            "$match": {
-                "title_id": title_id,
-                "sentiment": {"$exists": True}
-            }
-        },
+        {"$match": {"title_id": title_id, "sentiment": {"$exists": True}}},
         {
             "$group": {
                 "_id": "$title_id",
@@ -100,24 +107,35 @@ async def getSentimentByTitleId(title_id: str = None):
                 "avg_polarity": {"$avg": "$sentiment.polarity"},
                 "avg_positivity": {"$avg": "$sentiment.positivity"},
             }
-        }
+        },
     ]
     data = [result for result in mongo.getDB().reviews.aggregate(pipeline)]
 
     if len(data) == 1:
         return json.loads(json_util.dumps(data[0]))
 
-    return json.loads(json_util.dumps({
-        "count": 0,
-    }))
+    return json.loads(
+        json_util.dumps(
+            {
+                "count": 0,
+            }
+        )
+    )
+
 
 @app.get("/titles/sentiment/examples")
 async def getSentimentExamplesByTitleId(title_id: str = None, n: int = 5):
     """
     Returns n sentiments for a specific title based on the provided title uuid
     """
-    data = [review for review in mongo.getDB().reviews.find({"title_id": title_id, "sentiment": {"$exists": True}})]
+    data = [
+        review
+        for review in mongo.getDB().reviews.find(
+            {"title_id": title_id, "sentiment": {"$exists": True}}
+        )
+    ]
     return json.loads(json_util.dumps(data))
+
 
 @app.get("/actors/search")
 async def getActors(query: str = None):
@@ -126,9 +144,32 @@ async def getActors(query: str = None):
     """
     filter_query = {}
     if query:
-        filter_query = {"$text": {"$search": query}}
-    data = [result for result in mongo.getDB().actors.find(filter_query)]
+        filter_query = {"name": {"$regex": query, "$options": "i"}}
+    else:
+        # Only english alphanumeric characters
+        filter_query = {"name": {"$regex": "^[a-zA-Z0-9]*$", "$options": "i"}}
+
+    data = [result for result in mongo.getDB().actors.find(filter_query).limit(10)]
     return json.loads(json_util.dumps(data))
+
+@app.get("/actor")
+async def getActorById(id: str = None):
+    """
+    Returns actor details by id
+    """
+    filter_query = {}
+
+    if not id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No id provided"
+        )
+
+    filter_query = {"uuid": id}
+
+    data = mongo.getDB().actors.find_one(filter_query)
+    return json.loads(json_util.dumps(data))
+
+
 
 @app.get("/actors/sentiment/")
 async def getSentimentByActorId(actor_id: str = None):
@@ -136,15 +177,9 @@ async def getSentimentByActorId(actor_id: str = None):
     Returns all sentiments for a specific title based on the provided title_id
     """
     titles = [title for title in mongo.getDB().titles.find({"cast": actor_id})]
-    title_ids = [title['uuid'] for title in titles]
+    title_ids = [title["uuid"] for title in titles]
     pipeline = [
-        {
-            "$match": {
-                "title_id": {
-                    "$in": title_ids
-                }
-            }
-        },
+        {"$match": {"title_id": {"$in": title_ids}}},
         {
             "$group": {
                 "_id": "$title_id",
@@ -153,10 +188,11 @@ async def getSentimentByActorId(actor_id: str = None):
                 "avg_polarity": {"$avg": "$sentiment.polarity"},
                 "avg_positivity": {"$avg": "$sentiment.positivity"},
             }
-        }
+        },
     ]
     data = [result for result in mongo.getDB().reviews.aggregate(pipeline)]
     return json.loads(json_util.dumps(data))
+
 
 @app.get("/actors/sentiment/examples")
 async def getSentimentExamplesByActorId(actor_id: str = None, n: int = 5):
@@ -164,9 +200,15 @@ async def getSentimentExamplesByActorId(actor_id: str = None, n: int = 5):
     Returns n sentiments for a specific title based on the provided title uuid
     """
     titles = [title for title in mongo.getDB().titles.find({"cast": actor_id})]
-    title_ids = [title['uuid'] for title in titles]
-    data = [review for review in mongo.getDB().reviews.find({"title_id": {"$in": title_ids}, "sentiment": {"$exists": True}})][-n:]
+    title_ids = [title["uuid"] for title in titles]
+    data = [
+        review
+        for review in mongo.getDB().reviews.find(
+            {"title_id": {"$in": title_ids}, "sentiment": {"$exists": True}}
+        )
+    ]
     return json.loads(json_util.dumps(data))
+
 
 # @app.get("/titles/uuid/{title_uuid}")
 # async def getTitleById(title_uuid):
@@ -193,11 +235,3 @@ async def getSentimentExamplesByActorId(actor_id: str = None, n: int = 5):
 #     reviews_json = json.loads(json_util.dumps(reviews))
 #     data = [{"review_uuid": review['uuid'], "sentiment": review['sentiment']} for review in reviews_json if 'sentiment' in review.keys()]
 #     return data
-
-# @app.get("/reviews/all")
-# async def getAllReviews():
-#     """
-#     Returns all reviews
-#     """
-#     data = [review for review in mongo.getDB().reviews.find({})]
-#     return json.loads(json_util.dumps(data))

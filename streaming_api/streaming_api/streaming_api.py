@@ -18,6 +18,7 @@ NEW_SENTIMENT_OUT_KEY = "NEW_SENTIMENT_OUT"
 class StreamingApi:
     TITLE_CLIENTS = dict()
     ACTOR_CLIENTS = dict()
+    actor_ids_for_title = dict()
 
     def __init__(self):
         self.rabbit_mq_host = getenv(RABBIT_MQ_HOST_KEY)
@@ -53,15 +54,16 @@ class StreamingApi:
 
             title_id = message_body.get("body").get("title_id")
 
-            print(f"Title id: {title_id}")
-
-            for client, client_title_id in self.TITLE_CLIENTS.items():
-                print("client_title_id", client_title_id)
-                print("title_id", title_id)
-                if client_title_id == title_id:
-                    await client.send(
-                        json.dumps({"type": "review", "body": message_body.get("body")})
-                    )
+            if title_id:
+                for client, client_title_id in self.TITLE_CLIENTS.items():
+                    print("client_title_id", client_title_id)
+                    print("title_id", title_id)
+                    if client_title_id == title_id:
+                        await client.send(
+                            json.dumps(
+                                {"type": "review", "body": message_body.get("body")}
+                            )
+                        )
 
     async def on_new_connection(self, websocket: WebSocketServerProtocol, path: str):
         print(f"New connection: {websocket.id}")

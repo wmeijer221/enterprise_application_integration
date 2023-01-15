@@ -1,7 +1,5 @@
 <script lang="ts">
 	import SearchBar from './SearchBar.svelte';
-
-	let results: string[];
 </script>
 
 <svelte:head>
@@ -10,5 +8,5 @@
 </svelte:head>
 
 <section>
-	<SearchBar {results} />
+	<SearchBar />
 </section>

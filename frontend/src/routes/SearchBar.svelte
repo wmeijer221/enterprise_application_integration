@@ -1,21 +1,25 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
-	import TitleCard from './TitleCard.svelte';
+	import EntityCard from './TitleCard.svelte';
 
-	export let results: string[];
+	let titleResults: string[];
+	let actorResults: string[];
 
 	let searchTerm = '';
-	let debouncedSearchTerm = '';
 
 	async function search() {
-		debouncedSearchTerm = searchTerm;
-		const response = await fetch(
-			`http://localhost:8000/titles/search?query=${debouncedSearchTerm}`
-		);
+		const titleResponse = await fetch(`http://localhost:8000/titles/search?query=${searchTerm}`);
 
-		if (response.ok) {
-			results = await response.json();
+		if (titleResponse.ok) {
+			titleResults = await titleResponse.json();
+		}
+
+		const actorResponse = await fetch(`http://localhost:8000/actors/search?query=${searchTerm}`);
+
+		if (actorResponse.ok) {
+			actorResults = await actorResponse.json();
+			console.log(actorResults);
 		}
 	}
 
@@ -67,9 +71,16 @@
 	<div
 		class="w-full text-md text-gray-50 border-2 border-gray-300 rounded-lg p-2 mt-8 bg-neutral-800"
 	>
-		{#if results}
-			{#each results as result, i}
-				<TitleCard {result} isLastElement={i == results.length - 1} />
+		{#if titleResults && titleResults.length > 0}
+			<div class="text-sm border-b border-neutral-500">Movies & Series</div>
+			{#each titleResults as result, i}
+				<EntityCard type="title" {result} isLastElement={i == titleResults.length - 1} />
+			{/each}
+		{/if}
+		{#if actorResults && actorResults.length > 0}
+			<div class="text-sm border-b border-neutral-500">Actors</div>
+			{#each actorResults as result, i}
+				<EntityCard type="actor" {result} isLastElement={i == actorResults.length - 1} />
 			{/each}
 		{/if}
 	</div>
