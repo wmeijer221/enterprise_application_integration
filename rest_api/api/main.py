@@ -137,10 +137,9 @@ async def getSentimentExamplesByActorId(actor_id: str = None, n: int = 5):
     """
     Returns n sentiments for a specific title based on the provided title uuid
     """
-    titles = [title for title in mongo.getDB().titles.find({"cast": actor_id, "sentiment": {"$exists": True}})]
-    # logging.info(titles)
+    titles = [title for title in mongo.getDB().titles.find({"cast": actor_id})]
     title_ids = [title['uuid'] for title in titles]
-    data = [review for review in mongo.getDB().reviews.find({"title_id": {"$in": title_ids}})][-n:]
+    data = [review for review in mongo.getDB().reviews.find({"title_id": {"$in": title_ids}, "sentiment": {"$exists": True}})][-n:]
     return json.loads(json_util.dumps(data))
 
 # @app.get("/titles/uuid/{title_uuid}")
