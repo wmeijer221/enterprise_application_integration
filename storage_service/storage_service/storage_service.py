@@ -1,16 +1,18 @@
+from functools import partial
 import logging
-import json
-from bson import json_util
-from uuid import uuid4
 from os import getenv
-from base.mongo_db import MongoDB
+from typing import Callable
+from uuid import uuid4
+from pymongo.database import Database
+
 from base.canonical_model.title import Title
 from base.canonical_model.review import Review
 from base.canonical_model.review_sentiment import ReviewSentiment
 from base.canonical_model.actor import Actor
-from base.channel_messaging import ChannelMessage, create_connection, receive_from_queue, publish_to_queue, publish_to_pubsub, start_consuming
+from base.channel_messaging import ChannelMessage, create_connection, receive_from_queue, publish_to_pubsub, start_consuming
+from base.mongo_db import MongoDB
+
 from storage_service._version import VERSION, NAME
-from functools import partial, partialmethod
 
 
 MONGO_DB_HOST_KEY = "MONGO_DB_HOST"
@@ -27,6 +29,7 @@ NEW_TITLE_OUT_KEY = "NEW_TITLE_OUT"
 NEW_ACTOR_OUT_KEY = "NEW_ACTOR_OUT"
 NEW_REVIEW_OUT_KEY = "NEW_REVIEW_OUT"
 NEW_SENTIMENT_OUT_KEY = "NEW_SENTIMENT_OUT"
+REQ_TITLES_IN = "REQ_TITLE_IN"
 
 
 class StorageService:
@@ -49,6 +52,7 @@ class StorageService:
         new_title_out = getenv(NEW_TITLE_OUT_KEY)
         new_review_out = getenv(NEW_REVIEW_OUT_KEY)
         new_sentiment_out = getenv(NEW_SENTIMENT_OUT_KEY)
+        req_titles_in = getenv(REQ_TITLES_IN)
         create_connection(rabbit_mq_host)
         self.__new_title_callback = partial(
             StorageService.__basic_match_upsert_from_message,
@@ -86,13 +90,21 @@ class StorageService:
             out_data_type=ReviewSentiment,
             out_message_type = 'sentiment'
             )
+        self.__req_titles_callback = partial(
+            StorageService.__get_all_objects_of_type,
+            self,
+            collection='titles',
+            publish_method=publish_to_pubsub,
+            out_channel_str=new_title_out,
+            out_message_type="title"
+        )
         receive_from_queue(new_title_in, self.__new_title_callback, Title)
         receive_from_queue(new_review_in, self.__new_review_callback, Review)
         receive_from_queue(new_sentiment_in, self.__new_sentiment_callback, ReviewSentiment)
+        receive_from_queue(req_titles_in, self.__req_titles_callback, None)
         start_consuming()
 
     def __basic_match_upsert_from_message(self, message: ChannelMessage, collection: str, match_fields: dict = {}, data_preprocessor: callable = None, out_channel: str = None, out_data_type: type = None, out_message_type: type = None):
-        logging.info(f'Received message: {message.body}')
         # payload_dict = vars(message.body)
         data = message.body
         self.__basic_match_upsert(
@@ -108,7 +120,6 @@ class StorageService:
     def __basic_match_upsert(self, data_obj: object, collection: str, match_fields: dict = {}, data_preprocessor: callable = None, out_channel: str = None, out_data_type: type = None, out_message_type: type = None):
         filter_query = {}
         data = vars(data_obj)
-        # logging.info(f'vars(data) = {data}')
         if match_fields:
             for collection_match_field, message_match_field in match_fields.items():
                 message_match_value = data[message_match_field]
@@ -116,10 +127,10 @@ class StorageService:
         if data_preprocessor:
             data = data_preprocessor(data)
         update_result = self.mongo.getDB()[collection].update_one(filter_query, {"$set": data}, upsert=True)
-        if update_result.upserted_id:
-            logging.info(f'Upserted document {update_result.upserted_id} in collection {collection} in MongoDB')
-        else:
-            logging.info(f'Updated {update_result.modified_count} document(s) of {update_result.matched_count} matches in collection {collection} MongoDB')
+        # if update_result.upserted_id:
+        #     logging.info(f'Upserted document {update_result.upserted_id} in collection {collection} in MongoDB')
+        # else:
+        #     logging.info(f'Updated {update_result.modified_count} document(s) of {update_result.matched_count} matches in collection {collection} MongoDB')
         if out_channel:
             out_message = ChannelMessage.channel_message_from(
                 message_type=out_message_type,
@@ -159,3 +170,20 @@ class StorageService:
     def __new_sentiment_preprocessor(self, raw_data):
         data = {"sentiment": {"negativity": raw_data['negativity'], "polarity": raw_data['polarity'], "positivity": raw_data['positivity']}}
         return data
+
+    def __get_all_objects_of_type(self, _: ChannelMessage, collection: str, publish_method: Callable[[ChannelMessage, str], None], 
+        out_channel_str: str, out_message_type: str):
+        """
+        Retrieves all objects of a specific type from a 
+        collection and publishes them to a channel. 
+        """
+
+        db: Database = self.mongo.getDB()
+        data_entries = db.get_collection(collection).find()
+        for entry in data_entries:
+            # Removes mongoDB ID from object before sending
+            # To comply with canonical datamodel.
+            if "_id" in entry:
+                del entry["_id"]
+            message = ChannelMessage.channel_message_from(out_message_type, NAME, VERSION, entry)
+            publish_method(message, out_channel_str)
