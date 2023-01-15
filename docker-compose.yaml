@@ -71,7 +71,7 @@ services:
   #   environment:
   #     - ENDPOINT_TYPE=test
   #     - CHANNEL_NAME=messaging
-  #     - NEW_REVIEW_OUT=new_review
+  #     - NEW_REVIEW_OUT=ingress_review
   #     - NEW_TITLE_IN=new_title
   #     - REQ_TITLE_OUT=req_title
   #     - QUERY_INTERVAL=3600

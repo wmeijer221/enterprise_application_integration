@@ -13,4 +13,8 @@ build_and_up:
 
 up: 
 	docker compose up
-	
+
+up_no_endpoints:
+	docker compose up --scale reddit_endpoint_adapter=0 \
+		--scale imdb_endpoint_adapter=0 \
+		--scale twitter_endpoint_adapter=0
