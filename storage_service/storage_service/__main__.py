@@ -5,6 +5,6 @@ from dotenv import load_dotenv
 
 from storage_service.storage_service import StorageService
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 load_dotenv()
 StorageService()

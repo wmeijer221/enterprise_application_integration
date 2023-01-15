@@ -26,6 +26,8 @@ services:
     build: storage_service
     depends_on:
       - messaging
+    volumes:
+      - ./:/app:cached
     environment:
       - NEW_TITLE_IN=ingress_title
       - NEW_REVIEW_IN=ingress_review
@@ -134,6 +136,8 @@ services:
       - CHANNEL=messaging
       - NEW_TITLE_OUT=ingress_title
       - START_DELAY=0
+    volumes:
+      - ./:/app:cached
 
 
   # Streaming API

@@ -79,6 +79,7 @@ def create_connection(channel_name: str, stop_if_existing: bool = True, max_retr
                 pika.ConnectionParameters(host=channel_name)
             )
             channel = connection.channel()
+            logging.info("Connected to channel %s.", channel_name)
 
             break
         except (gaierror, pika.exceptions.AMQPConnectionError):
