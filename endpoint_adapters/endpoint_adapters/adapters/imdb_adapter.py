@@ -4,7 +4,7 @@ from dateutil.parser import parse as parse_date
 import json
 import logging
 import requests
-from uuid import uuid4
+from uuid import NAMESPACE_OID, uuid3, uuid4
 
 from base.canonical_model import Review, Title
 
@@ -104,7 +104,7 @@ class IMDbAdapter(APIAdapter):
         for review in reviews:
             timestamp = parse_date(review["date"])
             real_review = Review(
-                uuid=str(uuid4()),
+                str(uuid3(NAMESPACE_OID, review["content"] + review["author"])),
                 title_id=title.uuid,
                 text=review["content"],
                 source_name="imdb",

@@ -1,3 +1,10 @@
 FROM node:18.13
 
-WORKDIR /app
+
+COPY ./ /app/frontend/
+
+WORKDIR /app/frontend
+
+RUN npm install
+
+CMD ["npm", "run", "dev"]

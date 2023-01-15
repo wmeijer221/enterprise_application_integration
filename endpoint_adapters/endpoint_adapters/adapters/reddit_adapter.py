@@ -3,7 +3,7 @@
 import logging
 from os import getenv
 import datetime
-from uuid import uuid4
+from uuid import NAMESPACE_OID, uuid3, uuid4
 
 from praw.reddit import Reddit
 from praw.models import SubredditMessage
@@ -86,7 +86,7 @@ class RedditAdapter(APIAdapter):
         for post in posts:
             timestamp = datetime.datetime.fromtimestamp(post.created_utc)
             review = Review(
-                uuid = str(uuid4()),
+                str(uuid3(NAMESPACE_OID, post.selftext + str(post.author))),
                 title_id=title.uuid,
                 text=post.selftext,
                 source_name="reddit",
