@@ -1,20 +1,30 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { onMount } from 'svelte';
+	import TitleCard from './TitleCard.svelte';
 
 	export let results: string[];
 
 	let searchTerm = '';
+	let debouncedSearchTerm = '';
 
 	async function search() {
-		console.log('searching');
-		console.log(searchTerm);
-		// const response = await fetch(`/api/search?searchTerm=${searchTerm}`);
-		// const json = await response.json();
-		// results = json;
+		debouncedSearchTerm = searchTerm;
+		const response = await fetch(
+			`http://localhost:8000/titles/search?query=${debouncedSearchTerm}`
+		);
+
+		if (response.ok) {
+			results = await response.json();
+		}
 	}
+
+	onMount(async () => {
+		search();
+	});
 </script>
 
-<div class="p-4">
+<div class="p-4 px-28">
 	<!-- prevent default -->
 	<form method="POST" use:enhance>
 		<label
@@ -54,11 +64,11 @@
 			>
 		</div>
 	</form>
-	{#if results}
-		{#each results as result}
-			<div>
-				{result}
-			</div>
-		{/each}
-	{/if}
+	<div class="w-full text-md text-gray-50 border-2 border-gray-300 rounded-lg mt-8">
+		{#if results}
+			{#each results as result, i}
+				<TitleCard {result} isLastElement={i == results.length - 1} />
+			{/each}
+		{/if}
+	</div>
 </div>

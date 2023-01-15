@@ -209,16 +209,6 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
 
-  mongodb-exporter:
-    image: percona/mongodb_exporter:0.36.0
-    ports:
-      - 9216:9216
-    expose:
-      - 9216
-    environment:
-      - MONGODB_URI=mongodb://${MONGO_DB_USERNAME}:${MONGO_DB_PASSWORD}@${MONGO_DB_HOST}:${MONGO_DB_PORT}/${MONGO_DB_DATABASE}?authSource=${MONGO_DB_AUTHSOURCE}
-    
-
 volumes:
   rabbitmq-prometheus_prometheus:
   rabbitmq-prometheus_grafana:

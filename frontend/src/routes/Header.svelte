@@ -1,14 +1,9 @@
-<script>
-	import { page } from '$app/stores';
-
-	import github from '$lib/images/github.svg';
-	import SearchBar from './SearchBar.svelte';
-</script>
-
 <header
-	class=" flex justify-between p-4 bg-gradient-to-b from-zinc-800 to-zinc-700 text-white shadow-md"
+	class="px-28 flex justify-between py-8 bg-gradient-to-b from-neutral-900 to-neutral-800 text-white shadow"
 >
 	<div class="w-full font-indieFlower">
-		<h1>Sentalysis</h1>
+		<a href="/">
+			<h1 class="text-8xl">Sentalysis</h1>
+		</a>
 	</div>
 </header>

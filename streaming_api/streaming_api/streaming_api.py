@@ -3,6 +3,7 @@
 import asyncio
 from base64 import decode
 import json
+import logging
 from os import getenv
 from urllib.parse import urlparse
 import aio_pika
@@ -15,7 +16,8 @@ NEW_SENTIMENT_OUT_KEY = "NEW_SENTIMENT_OUT"
 
 
 class StreamingApi:
-    CLIENTS = dict()
+    TITLE_CLIENTS = dict()
+    ACTOR_CLIENTS = dict()
 
     def __init__(self):
         self.rabbit_mq_host = getenv(RABBIT_MQ_HOST_KEY)
@@ -45,7 +47,7 @@ class StreamingApi:
 
     async def on_message_received(self, message: aio_pika.IncomingMessage):
         async with message.process():
-            print(f"Sending to {len(self.CLIENTS)} clients")
+            print(f"Sending to {len(self.TITLE_CLIENTS)} clients")
 
             message_body = json.loads(message.body.decode())
 
@@ -53,33 +55,40 @@ class StreamingApi:
 
             print(f"Title id: {title_id}")
 
-            for client, client_title_id in self.CLIENTS.items():
+            for client, client_title_id in self.TITLE_CLIENTS.items():
                 print("client_title_id", client_title_id)
                 print("title_id", title_id)
                 if client_title_id == title_id:
-                    await client.send(message.body.decode())
+                    await client.send(
+                        json.dumps({"type": "review", "body": message_body.get("body")})
+                    )
 
     async def on_new_connection(self, websocket: WebSocketServerProtocol, path: str):
-        print("New connection")
-
+        print(f"New connection: {websocket.id}")
         try:
-            # Get "id" path query parameter
+            # Parse
+            entity = path.split("?")[1].split("=")[0]
             parsed_url = urlparse(path)
             id = parsed_url.query.split("=")[1]
 
-            self.CLIENTS[websocket] = id
+            if entity == "title_id":
+                self.TITLE_CLIENTS[websocket] = id
+            elif entity == "actor_id":
+                self.ACTOR_CLIENTS[websocket] = id
 
-            print(self.CLIENTS)
+            print(f"Added client {websocket.id} to {entity} {id}")
 
-            await websocket.send("Hello")
+            await websocket.send(json.dumps({"type": "connected"}))
 
             while True:
-                message = await websocket.recv()
-                print(message)
+                await websocket.recv()
 
         except websockets.exceptions.ConnectionClosedError:
-            print(f"Client {websocket.id} closed connection")
+            logging.info(f"Client {websocket.id} closed connection")
         except Exception as e:
-            print(f"Unknown error: {e}")
+            logging.warning(f"Client {websocket.id} left: {e}")
         finally:
-            del self.CLIENTS[websocket]
+            if websocket in self.TITLE_CLIENTS:
+                del self.TITLE_CLIENTS[websocket]
+            if websocket in self.ACTOR_CLIENTS:
+                del self.ACTOR_CLIENTS[websocket]

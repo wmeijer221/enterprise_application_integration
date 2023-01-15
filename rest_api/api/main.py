@@ -33,7 +33,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://0.0.0.0:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,8 +56,24 @@ async def getTitlesBySearch(query: str = None):
     """
     filter_query = {}
     if query:
-        filter_query = {"$text": {"$search": query}}
-    data = [result for result in mongo.getDB().titles.find(filter_query)]
+        filter_query = {"name": {"$regex": query, "$options": "i"}}
+
+    data = [result for result in mongo.getDB().titles.find(filter_query).limit(10)]
+    return json.loads(json_util.dumps(data))
+
+@app.get("/title")
+async def getTitleById(id: str = None):
+    """
+    Returns title results of search by name
+    """
+    filter_query = {}
+
+    if not id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No id provided")
+
+    filter_query = {"uuid": id}
+
+    data = mongo.getDB().titles.find_one(filter_query)
     return json.loads(json_util.dumps(data))
 
 @app.get("/titles/sentiment/")
@@ -68,7 +84,8 @@ async def getSentimentByTitleId(title_id: str = None):
     pipeline = [
         {
             "$match": {
-                "title_id": title_id
+                "title_id": title_id,
+                "sentiment": {"$exists": True}
             }
         },
         {
@@ -82,15 +99,20 @@ async def getSentimentByTitleId(title_id: str = None):
         }
     ]
     data = [result for result in mongo.getDB().reviews.aggregate(pipeline)]
-    logging.info(data)
-    return json.loads(json_util.dumps(data))
+
+    if len(data) == 1:
+        return json.loads(json_util.dumps(data[0]))
+
+    return json.loads(json_util.dumps({
+        "count": 0,
+    }))
 
 @app.get("/titles/sentiment/examples")
 async def getSentimentExamplesByTitleId(title_id: str = None, n: int = 5):
     """
     Returns n sentiments for a specific title based on the provided title uuid
     """
-    data = [review for review in mongo.getDB().reviews.find({"title_id": title_id, "sentiment": {"$exists": True}})][-n:]
+    data = [review for review in mongo.getDB().reviews.find({"title_id": title_id, "sentiment": {"$exists": True}})]
     return json.loads(json_util.dumps(data))
 
 @app.get("/actors/search")

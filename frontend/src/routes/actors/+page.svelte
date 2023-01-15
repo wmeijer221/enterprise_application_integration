@@ -6,7 +6,7 @@
 	const id = $page.url.searchParams.get('id');
 
 	onMount(async () => {
-		const ws = new WebSocket('ws://localhost:8082/title?id=' + id);
+		const ws = new WebSocket('ws://localhost:8082/titles/sentiment?actor_id=' + id);
 
 		ws.onmessage = (event) => {
 			console.log(event.data);

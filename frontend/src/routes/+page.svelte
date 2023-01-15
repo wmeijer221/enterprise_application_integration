@@ -1,8 +1,7 @@
-<script>
-	import Counter from './SearchBar.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
 	import SearchBar from './SearchBar.svelte';
+
+	let results: string[];
 </script>
 
 <svelte:head>
@@ -11,5 +10,5 @@
 </svelte:head>
 
 <section>
-	<SearchBar />
+	<SearchBar {results} />
 </section>
