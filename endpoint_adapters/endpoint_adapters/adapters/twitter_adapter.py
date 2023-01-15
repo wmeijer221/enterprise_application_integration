@@ -1,6 +1,7 @@
 import datetime
 import logging
 from os import getenv
+import time
 import requests
 from uuid import uuid4
 
@@ -25,14 +26,13 @@ class TestAdapter(APIAdapter):
     """Adapter for Twitter."""
 
     def fetch_title(self, title: Title):
-        logging.debug('Searching for "%s" in twitter.', title)
         try:
             # Fetch tweets for title.
             posts = self.__find_posts(title.name)
         except Exception as exception:
             logging.error(
                 'Error while searching for "%s" in tweets: %s.',
-                title,
+                title.name,
                 exception,
             )
             return
@@ -42,6 +42,12 @@ class TestAdapter(APIAdapter):
         self.__publish_posts(title, posts)
 
     def __find_posts(self, title: str) -> "list[TwitterMessage]":
+        # Wait 5 seconds to avoid rate limit.
+        time.sleep(5)
+
+        # Escape special url characters.
+        title = title.replace(" ", "%20").replace(":", "%3A").replace("/", "%2F")
+
         response = requests.get(
             "https://api.twitter.com/2/tweets/search/recent",
             auth=bearer_oauth,
@@ -83,7 +89,7 @@ class TestAdapter(APIAdapter):
                 text=post["text"],
                 source_name="twitter",
                 source_id=post["id"],
-                timestamp=timestamp,
+                timestamp=str(timestamp),
                 reviewer=str(post["user"]["name"]),
             )
             self.publish(review)

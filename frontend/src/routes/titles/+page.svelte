@@ -110,10 +110,15 @@
 			<PieChart {positiveSentimentCount} {negativeSentimentCount} />
 		</div>
 	</div>
-	<div>
-		<!-- Feed of messages -->
-		{#each Object.values(sentimentMessages) as message}
-			<ReviewCard {message} />
-		{/each}
+	<div class="mt-8">
+		<h3>
+			{sentimentCount}
+			{sentimentCount === 1 ? ' review' : ' reviews'}
+		</h3>
+		<div class="mt-2">
+			{#each Object.values(sentimentMessages).sort((a, b) => new Date(b.timestamp).valueOf() - new Date(a.timestamp).valueOf()) as message}
+				<ReviewCard {message} />
+			{/each}
+		</div>
 	</div>
 </div>

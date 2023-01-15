@@ -52,7 +52,7 @@
 				type="search"
 				id="default-search"
 				class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-zinc-500 focus:border-zinc-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-zinc-500 dark:focus:border-zinc-500"
-				placeholder="Search Mockups, Logos..."
+				placeholder="Search Movies, Series, Actors..."
 				required
 				bind:value={searchTerm}
 				on:input={search}
@@ -64,7 +64,9 @@
 			>
 		</div>
 	</form>
-	<div class="w-full text-md text-gray-50 border-2 border-gray-300 rounded-lg mt-8">
+	<div
+		class="w-full text-md text-gray-50 border-2 border-gray-300 rounded-lg p-2 mt-8 bg-neutral-800"
+	>
 		{#if results}
 			{#each results as result, i}
 				<TitleCard {result} isLastElement={i == results.length - 1} />

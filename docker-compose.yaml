@@ -115,7 +115,6 @@ services:
       - REQ_TITLE_OUT=req_title
       - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
       - QUERY_INTERVAL=3600
-    command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
         - ./:/app:cached
 

@@ -57,6 +57,10 @@ async def getTitlesBySearch(query: str = None):
     filter_query = {}
     if query:
         filter_query = {"name": {"$regex": query, "$options": "i"}}
+    else:
+        # Only english alphanumeric characters
+        filter_query = {"name": {"$regex": "^[a-zA-Z0-9]*$", "$options": "i"}}
+
 
     data = [result for result in mongo.getDB().titles.find(filter_query).limit(10)]
     return json.loads(json_util.dumps(data))

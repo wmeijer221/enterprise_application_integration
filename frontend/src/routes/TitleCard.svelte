@@ -8,7 +8,7 @@
 
 <a href="/titles?id={result.uuid}">
 	<div
-		class="w-full p-4 pl-11 text-md border-solid border-gray-500 hover:bg-neutral-700 {isLastElement
+		class="w-full p-4 pl-11 text-md border-solid border-gray-500 hover:bg-neutral-700 bg-neutral-800 {isLastElement
 			? ''
 			: 'border-b'}"
 	>
