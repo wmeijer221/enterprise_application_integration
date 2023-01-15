@@ -16,6 +16,7 @@ class IMDbAdapter(APIAdapter):
     """Adapter for IMDb reviews."""
 
     BASE_URL = "https://imdb-api.tprojects.workers.dev"
+    HOTFIX_URL = "https://v3.sg.media-imdb.com/suggestion/x/{query}.json?includeVideos=0"
     TIMEOUT = 5
 
     def fetch_title(self, title: Title):
@@ -31,12 +32,19 @@ class IMDbAdapter(APIAdapter):
 
     def __fetch_release_id(self, title) -> str:
         """Fetches the IMDb ID for a given title."""
-        logging.debug("Fetching IMDb ID for %s.", title)
-        url = f"{self.BASE_URL}/search"
-        params = {"query": title}
+        logging.info("Fetching IMDb ID for %s.", title)
+        # NOTE: For some reason, the original URL doesn't work for search 
+        # queries anymore, whereas it does work for everything else. 
+        # Therefore, a hotfix URL is used for this one. 
+        # Some of the old code is commented out and marked with a note.
+        
+        # url = f"{self.BASE_URL}/search" # SEE NOTE above
+        # params = {"query": title} # SEE NOTE above
+        url = self.HOTFIX_URL.format(query=title)
 
         try:
-            response = requests.request("GET", url, params=params, timeout=self.TIMEOUT)
+            # response = requests.request("GET", url, params=params, timeout=self.TIMEOUT) # SEE NOTE above
+            response = requests.request("GET", url, timeout=self.TIMEOUT)
         except requests.exceptions.Timeout:
             logging.error("Timeout while fetching IMDb ID for %s.", title)
             return None
@@ -47,14 +55,19 @@ class IMDbAdapter(APIAdapter):
 
         response_json = json.loads(response.text)
 
+        # entries = [
+        #     {"title": release["title"], "id": release["id"]}
+        #     for release in response_json["results"]
+        # ] # SEE NOTE above
         entries = [
-            {"title": release["title"], "id": release["id"]}
-            for release in response_json["results"]
+            {"title": release["l"], "id": release["id"]}
+            for release in response_json["d"]
         ]
         # Returns exact match
-        for reliease in entries:
-            if reliease["title"] == title:
-                release_id = reliease["id"]
+        for release in entries:
+            logging.critical(release)
+            if release["title"] == title:
+                release_id = release["id"]
                 logging.debug("Found IMDb IDs for %s: %s.", title, release_id)
                 return release_id
 
