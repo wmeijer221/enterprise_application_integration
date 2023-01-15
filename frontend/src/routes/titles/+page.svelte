@@ -18,7 +18,7 @@
 		count: 0
 	};
 
-	let sentimentMessages: Record<string, Review> = {};
+	$: sentimentMessages = {} as Record<string, Review>;
 	let negativeSentimentCount = 0;
 	let positiveSentimentCount = 0;
 

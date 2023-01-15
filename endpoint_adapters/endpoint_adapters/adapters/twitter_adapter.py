@@ -3,7 +3,7 @@ import logging
 from os import getenv
 import time
 import requests
-from uuid import uuid4
+from uuid import NAMESPACE_OID, uuid3, uuid4
 
 from base.canonical_model import Review, Title
 
@@ -46,8 +46,9 @@ class TestAdapter(APIAdapter):
         time.sleep(5)
 
         # Escape special url characters.
-        title = title.replace(" ", "%20").replace(":", "%3A").replace("/", "%2F")
+        title = title.replace(":", "")
 
+        logging.info("Searching for %s in tweets.", title)
         response = requests.get(
             "https://api.twitter.com/2/tweets/search/recent",
             auth=bearer_oauth,
@@ -55,8 +56,8 @@ class TestAdapter(APIAdapter):
             params={
                 "query": title,
                 "max_results": 10,
-                "tweet.fields": "id,text,edit_history_tweet_ids,author_id,created_at,lang,public_metrics,possibly_sensitive",
-                "user.fields": "id,name,username,location,verified,public_metrics",
+                "tweet.fields": "id,text,author_id,created_at",
+                "user.fields": "id,name,username",
                 "expansions": "author_id",
             },
         )
@@ -83,13 +84,16 @@ class TestAdapter(APIAdapter):
         logging.debug("Publishing %s posts to message queue.", len(posts))
         for post in posts:
             timestamp = datetime.datetime.fromisoformat(post["created_at"][0:19])
+
+            author = str(post["user"]["name"])
+
             review = Review(
-                uuid=str(uuid4()),
+                str(uuid3(NAMESPACE_OID, post["text"] + author)),
                 title_id=title.uuid,
                 text=post["text"],
                 source_name="twitter",
                 source_id=post["id"],
                 timestamp=str(timestamp),
-                reviewer=str(post["user"]["name"]),
+                reviewer=author,
             )
             self.publish(review)

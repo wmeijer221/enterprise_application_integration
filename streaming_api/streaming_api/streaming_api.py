@@ -24,10 +24,8 @@ class StreamingApi:
         self.rabbit_mq_host = getenv(RABBIT_MQ_HOST_KEY)
         self.new_sentiment = getenv(NEW_SENTIMENT_OUT_KEY)
 
-        print(f"Listen to channel: {self.new_sentiment}")
-
     async def start_queue_consumer(self):
-        print("Starting queue consumer")
+        logging.info("Starting queue consumer")
         # For the Streaming API, we do not use the base image because we need the asynchronous version of pika
         connection = await aio_pika.connect_robust(
             host=self.rabbit_mq_host, login="guest", password="guest"
@@ -48,16 +46,12 @@ class StreamingApi:
 
     async def on_message_received(self, message: aio_pika.IncomingMessage):
         async with message.process():
-            print(f"Sending to {len(self.TITLE_CLIENTS)} clients")
-
             message_body = json.loads(message.body.decode())
 
             title_id = message_body.get("body").get("title_id")
 
             if title_id:
                 for client, client_title_id in self.TITLE_CLIENTS.items():
-                    print("client_title_id", client_title_id)
-                    print("title_id", title_id)
                     if client_title_id == title_id:
                         await client.send(
                             json.dumps(
@@ -66,7 +60,7 @@ class StreamingApi:
                         )
 
     async def on_new_connection(self, websocket: WebSocketServerProtocol, path: str):
-        print(f"New connection: {websocket.id}")
+        logging.info(f"New connection: {websocket.id}")
         try:
             # Parse
             entity = path.split("?")[1].split("=")[0]
@@ -77,8 +71,6 @@ class StreamingApi:
                 self.TITLE_CLIENTS[websocket] = id
             elif entity == "actor_id":
                 self.ACTOR_CLIENTS[websocket] = id
-
-            print(f"Added client {websocket.id} to {entity} {id}")
 
             await websocket.send(json.dumps({"type": "connected"}))
 

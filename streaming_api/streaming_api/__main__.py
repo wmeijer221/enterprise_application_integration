@@ -2,9 +2,13 @@
 
 import asyncio
 import functools
+import logging
+
 from websockets.server import serve
 
 from streaming_api.streaming_api import StreamingApi
+
+logging.basicConfig(level=logging.INFO)
 
 queue_consumer = StreamingApi()
 
@@ -17,7 +21,7 @@ async def start_websocket_server():
     async with serve(
         functools.partial(queue_consumer.on_new_connection), "0.0.0.0", 8082
     ):
-        print("Streaming API started")
+        logging.info("Streaming API started")
         await asyncio.Future()
 
 

@@ -154,7 +154,6 @@ services:
       - NEW_SENTIMENT_OUT=new_sentiment
     ports:
       - 8082:8082
-    command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       - ./:/app:cached
 
@@ -162,7 +161,6 @@ services:
     build: frontend
     ports:
       - 5173:5173
-    command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       - ./:/app:cached
 
