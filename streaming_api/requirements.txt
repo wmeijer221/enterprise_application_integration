@@ -1,0 +1,14 @@
+aio-pika==8.3.0
+aiormq==6.6.4
+black==22.12.0
+click==8.1.3
+idna==3.4
+multidict==6.0.4
+mypy-extensions==0.4.3
+pamqp==3.2.1
+pathspec==0.10.3
+pika==1.3.1
+platformdirs==2.6.2
+python-dotenv==0.21.0
+websockets==10.4
+yarl==1.8.2

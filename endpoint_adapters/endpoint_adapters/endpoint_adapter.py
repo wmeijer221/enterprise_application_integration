@@ -34,6 +34,7 @@ class EndpointAdapter:
             body=review)
         publish_to_queue(message, self.queue_name)
 
+
     def __build_api_adapter(self) -> "tuple[APIAdapter, str]":
         """
         Factory method that loads an API adapter based

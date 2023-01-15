@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+from base.canonical_model.review_sentiment import ReviewSentiment
+
+
 @dataclass(frozen=True)
 class Review:
     """Data object for reviews."""
@@ -11,3 +14,5 @@ class Review:
     source_id: str
     timestamp: str
     reviewer: str
+
+    sentiment: ReviewSentiment = None

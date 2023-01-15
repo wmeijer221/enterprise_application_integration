@@ -26,6 +26,8 @@ services:
     build: storage_service
     depends_on:
       - messaging
+    volumes:
+      - ./:/app:cached
     environment:
       - NEW_TITLE_IN=ingress_title
       - NEW_REVIEW_IN=ingress_review
@@ -113,7 +115,6 @@ services:
       - REQ_TITLE_OUT=req_title
       - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
       - QUERY_INTERVAL=3600
-    command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
         - ./:/app:cached
 
@@ -139,13 +140,31 @@ services:
       - CHANNEL=messaging
       - NEW_TITLE_OUT=ingress_title
       - START_DELAY=0
+    volumes:
+      - ./:/app:cached
+
+
+  # Streaming API
+  streaming_api:
+    build: streaming_api
+    depends_on:
+      - messaging
+    environment:
+      - RABBIT_MQ_HOST=${RABBIT_MQ_HOST}
+      - NEW_SENTIMENT_OUT=new_sentiment
+    ports:
+      - 8082:8082
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ./:/app:cached
 
   frontend:
     build: frontend
     ports:
-      - 8080:8080
+      - 5173:5173
     command: /bin/sh -c "while sleep 1000; do :; done"
-
+    volumes:
+      - ./:/app:cached
 
   # Monitoring
   grafana:
@@ -193,16 +212,6 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
-
-  mongodb-exporter:
-    image: percona/mongodb_exporter:0.36.0
-    ports:
-      - 9216:9216
-    expose:
-      - 9216
-    environment:
-      - MONGODB_URI=mongodb://${MONGO_DB_USERNAME}:${MONGO_DB_PASSWORD}@${MONGO_DB_HOST}:${MONGO_DB_PORT}/${MONGO_DB_DATABASE}?authSource=${MONGO_DB_AUTHSOURCE}
-    
 
 volumes:
   rabbitmq-prometheus_prometheus:
